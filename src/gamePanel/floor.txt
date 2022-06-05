@@ -179,7 +179,7 @@ cell
 cell
 cell
 #1.5
-monster
+redslime
 cell
 blank
 blank
@@ -263,8 +263,17 @@ cell
 bluekey
 yellowkey
 #2.1
-
-
+downstair
+blank
+blank
+blank
+blank
+blank
+blank
+blank
+blank
+blank
+upstair
 
 
 

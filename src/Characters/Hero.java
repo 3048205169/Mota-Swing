@@ -20,7 +20,7 @@ public class Hero {
 
     public Hero() {
         this.level = 0;
-        this.life = 100;
+        this.life = 1000;
         this.attack = 10;
         this.defence = 10;
         this.coin = 0;

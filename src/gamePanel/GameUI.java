@@ -1,9 +1,6 @@
 package gamePanel;
 import Characters.Celestial.Celestial;
-import Characters.Enemy.GreenSlime;
-import Characters.Enemy.Monster;
-import Characters.Enemy.Skeleton;
-import Characters.Enemy.SkeletonSoldier;
+import Characters.Enemy.*;
 import Characters.Hero;
 import Matter.Door.*;
 import Matter.Key.BlueKey;
@@ -42,7 +39,7 @@ public class GameUI{
     GreenSlime[][][]greenSlimes = new GreenSlime[21][11][11];
     Skeleton[][][]skeletons = new Skeleton[21][11][11];
     SkeletonSoldier[][][]skeletonSoldiers = new SkeletonSoldier[21][11][11];
-
+    RedSlime[][][]redSlimes = new RedSlime[21][11][11];
 
 
     YellowDoor[][][]yellowDoors = new YellowDoor[21][11][11];
@@ -96,6 +93,7 @@ public class GameUI{
     public final int GREENSLIME = 101;
     public final int SKELETON = 102;
     public final int SKELETONSOLDIER = 103;
+    public final int REDSLIME = 104;
 
 
 
@@ -145,6 +143,7 @@ public class GameUI{
         cellMap.put("hero",HERO);
         cellMap.put("skeleton",SKELETON);
         cellMap.put("skeletonsoldier",SKELETONSOLDIER);
+        cellMap.put("redslime", REDSLIME);
 
     }
 
@@ -472,10 +471,12 @@ public class GameUI{
                     if(redKeys[i][j][k]!=null){
                         bottom.add(redKeys[i][j][k].redKeyLabel);
                     }
+                    if(yellowKeys[i][j][k]!=null){
+                        bottom.add(yellowKeys[i][j][k].yellowKeyLabel);
+                    }
                 }
             }
         }
-
 
 
 
@@ -535,6 +536,18 @@ public class GameUI{
             }
         }
 
+        for(int i=0;i<21;i++){//楼层
+            for(int j=0;j<11;j++){//j==y
+                for(int k=0;k<11;k++){//i==x
+                    if(redSlimes[i][j][k]!=null){
+                        bottom.add(redSlimes[i][j][k].monsterLabel);
+                    }
+                }
+            }
+        }
+
+
+
 
     }
 
@@ -589,7 +602,19 @@ public class GameUI{
             }
         }
 
-
+        for(int i=0;i<21;i++){
+            for(int j=0;j<11;j++){//j==y
+                for(int k=0;k<11;k++){//i==x
+                    if(yellowKeys[i][j][k]!=null){
+                        if(i==floorNum){
+                            yellowKeys[i][j][k].yellowKeyLabel.setVisible(true);
+                        }else{
+                            yellowKeys[i][j][k].yellowKeyLabel.setVisible(false);
+                        }
+                    }
+                }
+            }
+        }
 
 
         for (Lava lava : lavas) {
@@ -638,6 +663,12 @@ public class GameUI{
                     }
                     if(skeletonSoldiers[i][j][k]!=null){
                         skeletonSoldiers[i][j][k].monsterLabel.setVisible(i==floorNum);
+                    }
+                    if(redSlimes[i][j][k]!=null){
+                        redSlimes[i][j][k].monsterLabel.setVisible(i==floorNum);
+                    }
+                    if(greenSlimes[i][j][k]!=null){
+                        greenSlimes[i][j][k].monsterLabel.setVisible(i==floorNum);
                     }
                 }
             }
@@ -782,6 +813,17 @@ public class GameUI{
                         redKey.x = k;
                         redKey.redKeyLabel = cellLabel;
                         redKeys[i][j][k]=redKey;
+                    }else if(floor[i][j][k]==YELLOWKEY){
+                        ImageIcon yellowKeyIcon = new ImageIcon("src/imageResource/Cell/Key/6.png");
+                        yellowKeyIcon.setImage(yellowKeyIcon.getImage().getScaledInstance(34,34,1));
+                        cellLabel.setIcon(yellowKeyIcon);
+                        YellowKey yellowKey = new YellowKey();
+
+                        yellowKey.z = i;
+                        yellowKey.y = j;
+                        yellowKey.x = k;
+                        yellowKey.yellowKeyLabel = cellLabel;
+                        yellowKeys[i][j][k]=yellowKey;
                     }else if(floor[i][j][k]==SKELETON){
                         ImageIcon skeletonIcon = new ImageIcon("src/imageResource/Monster/skeleton.png");
                         skeletonIcon.setImage(skeletonIcon.getImage().getScaledInstance(34,34,1));
@@ -817,6 +859,23 @@ public class GameUI{
                         skeletonSoldier.experience = 6;
                         skeletonSoldier.monsterLabel = cellLabel;
                         skeletonSoldiers[i][j][k]=skeletonSoldier;
+
+                    }else if(floor[i][j][k]==REDSLIME){
+                        ImageIcon redSlimeIcon = new ImageIcon("src/imageResource/Monster/redSlime.png");
+                        redSlimeIcon.setImage(redSlimeIcon.getImage().getScaledInstance(34,34,1));
+                        cellLabel.setIcon(redSlimeIcon);
+                        RedSlime redSlime = new RedSlime();
+
+                        redSlime.z = i;
+                        redSlime.y = j;
+                        redSlime.x = k;
+                        redSlime.life = 70;
+                        redSlime.attack = 15;
+                        redSlime.defence = 2;
+                        redSlime.coin = 2;
+                        redSlime.experience = 2;
+                        redSlime.monsterLabel = cellLabel;
+                        redSlimes[i][j][k]=redSlime;
 
                     }
 
@@ -927,13 +986,27 @@ public class GameUI{
             if(floor[hero.z][hero.y][hero.x]==BLANK){
                 hero.heroLabel.setLocation(hero.heroLabel.getLocation().x-34,hero.heroLabel.getLocation().y);
                 floor[hero.z][hero.y][hero.x]=HERO;
-                floor[hero.z][hero.y+1][hero.x]=0;
+                floor[hero.z][hero.y+1][hero.x]=BLANK;
 
             }else if (floor[hero.z][hero.y][hero.x]==REDKEY){//踩到红钥匙
                 System.out.println("得到红钥匙");
-                hero.redKey = hero.redKey+1;//黄钥匙数量-1
+                hero.redKey = hero.redKey+1;//
                 //红钥匙的标签直接设置为空
                 bottom.remove(redKeys[hero.z][hero.y][hero.x].redKeyLabel);
+//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+                //修改英雄标签所在的位置
+                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x-34,hero.heroLabel.getLocation().y);
+                //英雄现在站立的地方变成英雄的坐标
+                floor[hero.z][hero.y][hero.x]=HERO;
+                //英雄原本站立的地方变成空地
+                floor[hero.z][hero.y+1][hero.x]=BLANK;
+
+
+            }else if (floor[hero.z][hero.y][hero.x]==YELLOWKEY){//踩到黄钥匙
+                System.out.println("得到黄钥匙");
+                hero.yellowKey = hero.yellowKey+1;//
+                //红钥匙的标签直接设置为空
+                bottom.remove(yellowKeys[hero.z][hero.y][hero.x].yellowKeyLabel);
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
                 //修改英雄标签所在的位置
                 hero.heroLabel.setLocation(hero.heroLabel.getLocation().x-34,hero.heroLabel.getLocation().y);
@@ -994,6 +1067,26 @@ public class GameUI{
                 }
 
 
+            }else if(floor[hero.z][hero.y][hero.x]==REDSLIME){//遇到红色史莱姆
+                System.out.println("遇到红色史莱姆");
+                //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
+                boolean fightingResult = fight(redSlimes[hero.z][hero.y][hero.x]);
+                if (fightingResult){//打得过
+                    //史莱姆的标签直接从bottom当中剔除
+                    bottom.remove(redSlimes[hero.z][hero.y][hero.x].monsterLabel);
+                    //修改英雄标签所在的位置
+                    hero.heroLabel.setLocation(hero.heroLabel.getLocation().x-34,hero.heroLabel.getLocation().y);
+                    //英雄现在站立的地方变成英雄的坐标
+                    floor[hero.z][hero.y][hero.x]=HERO;
+                    //原本站立的地方变成空地
+                    floor[hero.z][hero.y+1][hero.x]=BLANK;
+
+
+                }else{//打不过
+                    hero.y = hero.y+1;
+                }
+
+
             }else{
                 hero.y = hero.y+1;
             }
@@ -1024,10 +1117,12 @@ public class GameUI{
             return false;
         }
         while (simulateMonster.life>0){//怪物的生命值不为0的时候
-            //英雄砍怪物一刀
-            simulateMonster.life = simulateMonster.life-(simulateHero.attack-simulateMonster.defence);
             //怪物砍英雄一刀
             simulateHero.life =simulateHero.life-(simulateMonster.attack-simulateHero.defence);
+
+            //英雄砍怪物一刀
+            simulateMonster.life = simulateMonster.life-(simulateHero.attack-simulateMonster.defence);
+
         }
         if(simulateHero.life>0){//能够打得赢
             hero.life = simulateHero.life;
@@ -1171,16 +1266,16 @@ public class GameUI{
             }
 
             //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
-            if(floor[hero.z][hero.y][hero.x-1]==BLANK){//上
+            if(hero.x-1>=0&&floor[hero.z][hero.y][hero.x-1]==BLANK){//上
                 hero.x = hero.x-1;
                 hero.heroLabel.setLocation(hero.heroLabel.getLocation().x ,hero.heroLabel.getLocation().y-34);
 
 
-            }else if(floor[hero.z][hero.y][hero.x+1]==BLANK){//下
+            }else if(hero.x+1<=10&&floor[hero.z][hero.y][hero.x+1]==BLANK){//下
                 hero.x = hero.x+1;
                 hero.heroLabel.setLocation(hero.heroLabel.getLocation().x,hero.heroLabel.getLocation().y+34);
 
-            }else if(floor[hero.z][hero.y-1][hero.x]==BLANK){//左
+            }else if(hero.y-1>=0&&floor[hero.z][hero.y-1][hero.x]==BLANK){//左
                 hero.y = hero.y-1;
                 hero.heroLabel.setLocation(hero.heroLabel.getLocation().x-34,
                         hero.heroLabel.getLocation().y);
