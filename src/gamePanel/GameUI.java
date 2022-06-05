@@ -1003,21 +1003,34 @@ public class GameUI{
     }
 
     private boolean fight(Monster monster) {
-        Hero simulateHero = hero;//模拟的英雄的数据
-        Monster simulateMonster = monster;
+        Hero simulateHero = new Hero() ;//模拟的英雄的数据
+        simulateHero.x = hero.x;
+        simulateHero.y = hero.y;
+        simulateHero.z = hero.z;
+        simulateHero.attack =  hero.attack;
+        simulateHero.defence = hero.defence;
+        simulateHero.life = hero.life;
+
+        Monster simulateMonster = new Monster();
+        simulateMonster.x = monster.x;
+        simulateMonster.y = monster.y;
+        simulateMonster.z = monster.z;
+        simulateMonster.attack = monster.attack;
+        simulateMonster.defence = monster.defence;
+        simulateMonster.life = monster.life;
+
+
         if(simulateMonster.defence>=simulateHero.attack){
             return false;
         }
         while (simulateMonster.life>0){//怪物的生命值不为0的时候
-            //todo
-            //改成深拷贝，simulate对象的每一个属性都要赋值
             //英雄砍怪物一刀
-            simulateMonster.life = simulateHero.attack-simulateMonster.defence;
+            simulateMonster.life = simulateMonster.life-(simulateHero.attack-simulateMonster.defence);
             //怪物砍英雄一刀
-            simulateHero.life = simulateMonster.attack-simulateHero.defence;
+            simulateHero.life =simulateHero.life-(simulateMonster.attack-simulateHero.defence);
         }
         if(simulateHero.life>0){//能够打得赢
-            hero = simulateHero;
+            hero.life = simulateHero.life;
             hero.coin = hero.coin+monster.coin;
             hero.experience = hero.experience+monster.experience;
             return true;
