@@ -2,5 +2,6 @@ package Characters.Enemy;
 
 import javax.swing.*;
 
-public class Skeleton extends Monster{
+public class SkeletonSoldier extends Monster{
+
 }

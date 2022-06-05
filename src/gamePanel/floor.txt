@@ -148,10 +148,10 @@ cell
 blank
 skeleton
 yellowdoor
-monster
+skeletonsoldier
 blank
 yellowdoor
-monster
+skeletonsoldier
 bluebottle
 item
 #1.3

@@ -1,7 +1,9 @@
 package gamePanel;
 import Characters.Celestial.Celestial;
 import Characters.Enemy.GreenSlime;
+import Characters.Enemy.Monster;
 import Characters.Enemy.Skeleton;
+import Characters.Enemy.SkeletonSoldier;
 import Characters.Hero;
 import Matter.Door.*;
 import Matter.Key.BlueKey;
@@ -39,7 +41,7 @@ public class GameUI{
     Celestial[][][]celestials = new Celestial[21][11][11];
     GreenSlime[][][]greenSlimes = new GreenSlime[21][11][11];
     Skeleton[][][]skeletons = new Skeleton[21][11][11];
-
+    SkeletonSoldier[][][]skeletonSoldiers = new SkeletonSoldier[21][11][11];
 
 
 
@@ -93,6 +95,7 @@ public class GameUI{
     public final int MONSTER = -1;
     public final int GREENSLIME = 101;
     public final int SKELETON = 102;
+    public final int SKELETONSOLDIER = 103;
 
 
 
@@ -141,6 +144,7 @@ public class GameUI{
         cellMap.put("yellowdoor",YELLOWDOOR);
         cellMap.put("hero",HERO);
         cellMap.put("skeleton",SKELETON);
+        cellMap.put("skeletonsoldier",SKELETONSOLDIER);
 
     }
 
@@ -507,7 +511,7 @@ public class GameUI{
             for(int j=0;j<11;j++){//j==y
                 for(int k=0;k<11;k++){//i==x
                     if(greenSlimes[i][j][k]!=null){
-                        bottom.add(greenSlimes[i][j][k].greenSlimeLabel);
+                        bottom.add(greenSlimes[i][j][k].monsterLabel);
                     }
                 }
             }
@@ -516,7 +520,16 @@ public class GameUI{
             for(int j=0;j<11;j++){//j==y
                 for(int k=0;k<11;k++){//i==x
                     if(skeletons[i][j][k]!=null){
-                        bottom.add(skeletons[i][j][k].skeletonLabel);
+                        bottom.add(skeletons[i][j][k].monsterLabel);
+                    }
+                }
+            }
+        }
+        for(int i=0;i<21;i++){//楼层
+            for(int j=0;j<11;j++){//j==y
+                for(int k=0;k<11;k++){//i==x
+                    if(skeletonSoldiers[i][j][k]!=null){
+                        bottom.add(skeletonSoldiers[i][j][k].monsterLabel);
                     }
                 }
             }
@@ -604,6 +617,7 @@ public class GameUI{
                         }else {
                             upstairs[i][j][k].upstairLabel.setVisible(false);
                         }
+
                     }
                 }
             }
@@ -614,28 +628,24 @@ public class GameUI{
             for(int j=0;j<11;j++){//j==y
                 for(int k=0;k<11;k++){//i==x
                     if(downStairs[i][j][k]!=null){
-                        if(i==floorNum){
-                            downStairs[i][j][k].downstairLabel.setVisible(true);
-                        }else {
-                            downStairs[i][j][k].downstairLabel.setVisible(false);
-                        }
+                        downStairs[i][j][k].downstairLabel.setVisible(i==floorNum);
                     }
-                }
-            }
-        }
-        for(int i=0;i<21;i++){//楼层
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
                     if(celestials[i][j][k]!=null){
-                        if(i==floorNum){
-                            celestials[i][j][k].celestialLabel.setVisible(true);
-                        }else {
-                            celestials[i][j][k].celestialLabel.setVisible(false);
-                        }
+                        celestials[i][j][k].celestialLabel.setVisible(i==floorNum);
+                    }
+                    if(skeletons[i][j][k]!=null){
+                        skeletons[i][j][k].monsterLabel.setVisible(i==floorNum);
+                    }
+                    if(skeletonSoldiers[i][j][k]!=null){
+                        skeletonSoldiers[i][j][k].monsterLabel.setVisible(i==floorNum);
                     }
                 }
             }
         }
+
+
+
+
 
         hero.heroLabel.setVisible(true);
 
@@ -648,7 +658,6 @@ public class GameUI{
                     JLabel cellLabel = new JLabel();
                     cellLabel.setSize(34,34);
                     cellLabel.setLocation(34*j,94+34*k);
-//                    cellLabel.setVisible(true);
 
                     if (floor[i][j][k]==CELL){
                         ImageIcon wallIcon = new ImageIcon("src/imageResource/Cell/1.png");
@@ -665,6 +674,7 @@ public class GameUI{
                         ImageIcon celestialIcon = new ImageIcon("src/imageResource/Celestial/1.png");
                         celestialIcon.setImage(celestialIcon.getImage().getScaledInstance(34,34,1));
                         cellLabel.setIcon(celestialIcon);
+
                         Celestial celestial = new Celestial();
                         celestial.z = i;
                         celestial.y = j;
@@ -685,7 +695,7 @@ public class GameUI{
                         greenSlime.defence = 1;
                         greenSlime.coin = 1;
                         greenSlime.experience = 1;
-                        greenSlime.greenSlimeLabel = cellLabel;
+                        greenSlime.monsterLabel = cellLabel;
                         greenSlimes[i][j][k]=greenSlime;
 
                     }else if(floor[i][j][k]==YELLOWDOOR){
@@ -787,10 +797,26 @@ public class GameUI{
                         skeleton.defence = 5;
                         skeleton.coin = 5;
                         skeleton.experience = 4;
-                        skeleton.skeletonLabel = cellLabel;
+                        skeleton.monsterLabel = cellLabel;
                         skeletons[i][j][k]=skeleton;
 
+                    }else if(floor[i][j][k]==SKELETONSOLDIER){
+                        ImageIcon skeletonSoldierIcon = new ImageIcon("src/imageResource/Monster/skeletonSoldier.png");
+                        skeletonSoldierIcon.setImage(skeletonSoldierIcon.getImage().getScaledInstance(34,34,1));
+                        cellLabel.setIcon(skeletonSoldierIcon);
+                        SkeletonSoldier skeletonSoldier = new SkeletonSoldier();
 
+
+                        skeletonSoldier.z = i;
+                        skeletonSoldier.y = j;
+                        skeletonSoldier.x = k;
+                        skeletonSoldier.life = 150;
+                        skeletonSoldier.attack = 40;
+                        skeletonSoldier.defence = 20;
+                        skeletonSoldier.coin = 8;
+                        skeletonSoldier.experience = 6;
+                        skeletonSoldier.monsterLabel = cellLabel;
+                        skeletonSoldiers[i][j][k]=skeletonSoldier;
 
                     }
 
@@ -934,12 +960,58 @@ public class GameUI{
                 }
 
 
+            }else if(floor[hero.z][hero.y][hero.x]==UPSTAIR){//上楼
+                System.out.println("上楼了");
+                //todo
+                Icon icon = upstairs[hero.z][hero.y][hero.x].upstairLabel.getIcon();
+                System.out.println("=============");
+                System.out.println(upstairs[hero.z][hero.y][hero.x].upstairLabel.getLocation().x);
+                System.out.println(upstairs[hero.z][hero.y][hero.x].upstairLabel.getLocation().y);
+                System.out.println("=============");
+
+
+
+
+
+            }else if(floor[hero.z][hero.y][hero.x]==UPSTAIR){//上楼
+                System.out.println("上楼");
+                //楼层数+1
+                floorNum = floorNum+1;
+                //原本站立的地方变成空地
+                floor[hero.z][hero.y+1][hero.x]=BLANK;
+                //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
+                SetHeroCoor(true);//此方法寻找上一层的downStairs的在floor上的坐标然后选取一个可以站立的位置赋值给hero
+                //将英雄的现在的位置在floor里面设置值
+                floor[hero.z][hero.y][hero.x]=HERO;
+                //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
+                //
+
+
+            }else if(floor[hero.z][hero.y][hero.x]==GREENSLIME){//遇到绿色史莱姆
+                System.out.println("遇到绿色史莱姆");
+                //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
+                fight(greenSlimes[hero.z][hero.y][hero.x]);
+                //原本站立的地方变成空地
+                floor[hero.z][hero.y+1][hero.x]=BLANK;
+                //将英雄的现在的位置在floor里面设置值
+                floor[hero.z][hero.y][hero.x]=HERO;
+
+
+
             }else{
                 hero.y = hero.y+1;
             }
         }else{
             hero.y = hero.y+1;
         }
+    }
+
+    private void fight(Monster monster) {
+        while (monster.life>0){//怪物的生命值不为0的时候
+
+        }
+
+
     }
 
     private void heroGoDown() {
