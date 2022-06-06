@@ -1,4 +1,4 @@
 package Matter.Door;
 
-public class BlueDoor {
+public class BlueDoor extends Door{
 }

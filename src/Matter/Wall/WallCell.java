@@ -1,4 +1,4 @@
-package Matter;
+package Matter.Wall;
 
 import javax.swing.*;
 

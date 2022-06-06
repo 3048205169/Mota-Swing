@@ -5,7 +5,9 @@ import Characters.Hero;
 import Matter.Door.*;
 import Matter.Stairs.DownStair;
 import Matter.Stairs.Upstair;
-import Matter.WallCell;
+import Matter.Wall.DarkStar;
+import Matter.Wall.Lava;
+import Matter.Wall.WallCell;
 
 import javax.swing.*;
 import java.io.BufferedReader;
