@@ -1,13 +1,13 @@
 package gamePanel;
 
-import Characters.Celestial.Celestial;
-import Characters.Hero;
-import Matter.Door.*;
-import Matter.Stairs.DownStair;
-import Matter.Stairs.Upstair;
-import Matter.Wall.DarkStar;
-import Matter.Wall.Lava;
-import Matter.Wall.WallCell;
+import GameObject.Characters.SpecialChar.Celestial;
+import GameObject.Characters.Hero;
+import GameObject.Matter.Door.*;
+import GameObject.Matter.Stairs.DownStair;
+import GameObject.Matter.Stairs.Upstair;
+import GameObject.Matter.Wall.DarkStar;
+import GameObject.Matter.Wall.Lava;
+import GameObject.Matter.Wall.WallCell;
 
 import javax.swing.*;
 import java.io.BufferedReader;
