@@ -13,6 +13,7 @@ import GameObject.Matter.Stairs.Upstair;
 import GameObject.Matter.Wall.DarkStar;
 import GameObject.Matter.Wall.Lava;
 import GameObject.Matter.Wall.WallCell;
+import com.sun.xml.internal.ws.util.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,8 +21,8 @@ import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Constructor;
+import java.util.*;
 
 public class GameUI{
 
@@ -34,10 +35,12 @@ public class GameUI{
     JLabel bottom = new JLabel();
     JPanel gamePanel = new JPanel();
     JLabel bgLabel = new JLabel();
-    int[][][] floor = new int[21][11][11];
+//    int[][][] floor = new int[21][11][11];
     GameObject [][][] gameObjects = new GameObject[21][11][11];
 
     Hero hero = new Hero();
+
+    Set<String>monsterNameSet = new HashSet<>();
 
 
 
@@ -65,7 +68,6 @@ public class GameUI{
 //
 //    Upstair[][][]upstairs = new Upstair[21][11][11];
 //    DownStair[][][]downStairs = new DownStair[21][11][11];
-
 
 
     JLabel[]attributeLabels = new JLabel[9];
@@ -109,8 +111,16 @@ public class GameUI{
 //    public final int REDSLIME = 104;
 
 
+    public void initMonsterNameSet(){
+        monsterNameSet.add("skeleton");
+        monsterNameSet.add("skeletonsoldier");
+        monsterNameSet.add("redslime");
+        monsterNameSet.add("greenslime");
+        monsterNameSet.add("devilking");
+    }
 
     public GameUI(){
+        initMonsterNameSet();
         initCellMap();
         setFloor();//设置棋盘，[21][11][11]每一个点都放着东西，不是勇士就是墙就是敌人或者是道具
         JFrame.setDefaultLookAndFeelDecorated(true);
@@ -166,7 +176,7 @@ public class GameUI{
         if(upOrDown==true){
             for(int j=0;j<11;j++){
                 for(int k=0;k<11;k++){
-                    if (gameObjects[floorNum][j][k].type.equals("downstair")){
+                    if (gameObjects[floorNum][j][k]!=null&&gameObjects[floorNum][j][k].type.equals("downstair")){
                         hero.z = floorNum;
                         hero.y = j;
                         hero.x = k;
@@ -177,16 +187,17 @@ public class GameUI{
             }
 
             //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
-            if(hero.x-1>=0&&floor[hero.z][hero.y][hero.x-1]==BLANK){//上
+            if(hero.x-1>=0&&gameObjects[hero.z][hero.y][hero.x-1].type.equals("blank")){//上
                 hero.x = hero.x-1;
                 hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x ,hero.gameObjectLabel.getLocation().y-34);
 
 
-            }else if(hero.x+1<=10&&floor[hero.z][hero.y][hero.x+1]==BLANK){//下
+            }else if(hero.x+1<=10&&gameObjects[hero.z][hero.y][hero.x+1].type.equals("blank")){//下
+
                 hero.x = hero.x+1;
                 hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y+34);
 
-            }else if(hero.y-1>=0&&floor[hero.z][hero.y-1][hero.x]==BLANK){//左
+            }else if(hero.y-1>=0&&gameObjects[hero.z][hero.y-1][hero.x].type.equals("blank")){//左
                 hero.y = hero.y-1;
                 hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,
                         hero.gameObjectLabel.getLocation().y);
@@ -214,16 +225,16 @@ public class GameUI{
             }
 
             //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
-            if(hero.x-1>=0&&floor[hero.z][hero.y][hero.x-1]==BLANK){//上
+            if(hero.x-1>=0&&gameObjects[hero.z][hero.y][hero.x-1].type.equals("blank")){//上
                 hero.x = hero.x-1;
                 hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x ,hero.gameObjectLabel.getLocation().y-34);
 
 
-            }else if(hero.x+1<=10&&floor[hero.z][hero.y][hero.x+1]==BLANK){//下
+            }else if(hero.x+1<=10&&gameObjects[hero.z][hero.y][hero.x+1].equals("blank")){//下
                 hero.x = hero.x+1;
                 hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y+34);
 
-            }else if(hero.y-1>=0&&floor[hero.z][hero.y-1][hero.x]==BLANK){//左
+            }else if(hero.y-1>=0&&gameObjects[hero.z][hero.y-1][hero.x].type.equals("blank")){//左
                 hero.y = hero.y-1;
                 hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,
                         hero.gameObjectLabel.getLocation().y);
@@ -377,14 +388,33 @@ public class GameUI{
                 }else if(s.startsWith("#")){
                     continue;
                 }
-                floor[i][j][k] = cellMap.get(line);
+                Monster monster = new Monster();
 
-                GameObject gameObject = new GameObject();
-                gameObject.type = line;
-                gameObject.x = k;
-                gameObject.y = j;
-                gameObject.z = i;
-                gameObjects[i][j][k] = gameObject;//todo
+                if (monsterNameSet.contains(line)){
+                    try{
+                        Constructor<?> constructor = Class.forName("GameObject.Characters.Enemy." + StringUtils.capitalize(line)).getConstructor();
+                        monster = (Monster) constructor.newInstance();
+                        monster.type = line;
+                        monster.x = k;
+                        monster.y = j;
+                        monster.z = i;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    gameObjects[i][j][k] = monster;//todo
+
+                }else {
+                    GameObject gameObject = new GameObject();
+                    gameObject.type = line;
+                    gameObject.x = k;
+                    gameObject.y = j;
+                    gameObject.z = i;
+                    gameObjects[i][j][k] = gameObject;//todo
+                }
+
+
+
 
                 k=k+1;
                 if(k==11){
@@ -600,8 +630,6 @@ public class GameUI{
     public void addComponent2Floor(){
         bottom.add(hero.gameObjectLabel);
         //todo
-//        bottom.add(celestial.celestialLabel);
-
         for(int i=0;i<21;i++){//楼层
             for(int j=0;j<11;j++){//j==y
                 for(int k=0;k<11;k++){//i==x
@@ -936,20 +964,29 @@ public class GameUI{
         for(int i=0;i<21;i++){
             for(int j=0;j<11;j++){
                 for(int k=0;k<11;k++){
-                    JLabel gameObjectLabel = new JLabel();
-                    gameObjectLabel.setSize(34,34);
-                    gameObjectLabel.setLocation(34*j,94+34*k);
+                    if (null!=gameObjects[i][j][k]){
 
-                    ImageIcon gameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
-                    gameObjectIcon.setImage(gameObjectIcon.getImage().getScaledInstance(34,34,1));
-                    gameObjectLabel.setIcon(gameObjectIcon);
+                        JLabel gameObjectLabel = new JLabel();
+                        gameObjectLabel.setSize(34,34);
+                        gameObjectLabel.setLocation(34*j,94+34*k);
 
-                    GameObject gameObject = new GameObject();
-                    gameObject.z = i;
-                    gameObject.y = j;
-                    gameObject.x = k;
-                    gameObject.gameObjectLabel = gameObjectLabel;
-                    gameObjects[i][j][k]=gameObject;
+                        ImageIcon gameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
+                        gameObjectIcon.setImage(gameObjectIcon.getImage().getScaledInstance(34,34,1));
+                        gameObjectLabel.setIcon(gameObjectIcon);
+                        if (gameObjects[i][j][k].type.equals("hero")){
+                            hero.z = i;
+                            hero.y = j;
+                            hero.x = k;
+                            hero.gameObjectLabel = gameObjectLabel;
+                        }
+
+                        gameObjects[i][j][k].gameObjectLabel=gameObjectLabel;
+
+                    }
+                    else {
+                        continue;
+                    }
+
 
 
                 }
@@ -966,7 +1003,7 @@ public class GameUI{
 //                    cellLabel.setLocation(34*j,94+34*k);
 //
 //                    if (floor[i][j][k]==CELL){
-//                        ImageIcon wallIcon = new ImageIcon("src/imageResource/Cell/1.png");
+//                        ImageIcon wallIcon = new ImageIcon("src/imageResource/Cell/wallcell.png");
 //                        wallIcon.setImage(wallIcon.getImage().getScaledInstance(34,34,1));
 //                        cellLabel.setIcon(wallIcon);
 //
@@ -977,7 +1014,7 @@ public class GameUI{
 //                        wallCell.gameObjectLabel = cellLabel;
 //                        wallCells[i][j][k]=wallCell;
 //                    }else if(floor[i][j][k]==CELESTIAL){
-//                        ImageIcon celestialIcon = new ImageIcon("src/imageResource/Celestial/1.png");
+//                        ImageIcon celestialIcon = new ImageIcon("src/imageResource/Celestial/wallcell.png");
 //                        celestialIcon.setImage(celestialIcon.getImage().getScaledInstance(34,34,1));
 //                        cellLabel.setIcon(celestialIcon);
 //
@@ -1005,7 +1042,7 @@ public class GameUI{
 //                        greenSlimes[i][j][k]=greenSlime;
 //
 //                    }else if(floor[i][j][k]==YELLOWDOOR){
-//                        ImageIcon yellowDoorIcon = new ImageIcon("src/imageResource/Cell/Door/1.png");
+//                        ImageIcon yellowDoorIcon = new ImageIcon("src/imageResource/Cell/Door/wallcell.png");
 //                        yellowDoorIcon.setImage(yellowDoorIcon.getImage().getScaledInstance(34,34,1));
 //                        cellLabel.setIcon(yellowDoorIcon);
 //                        YellowDoor yellowDoor = new YellowDoor();
@@ -1015,7 +1052,7 @@ public class GameUI{
 //                        yellowDoor.gameObjectLabel = cellLabel;
 //                        yellowDoors[i][j][k]=yellowDoor;
 //                    }else if(floor[i][j][k]==HERO){
-//                        ImageIcon heroIcon = new ImageIcon("src/imageResource/Hero/1.png");
+//                        ImageIcon heroIcon = new ImageIcon("src/imageResource/Hero/wallcell.png");
 //                        heroIcon.setImage(heroIcon.getImage().getScaledInstance(34,34,1));
 //                        cellLabel.setIcon(heroIcon);
 //                        hero.gameObjectLabel = cellLabel;
@@ -1023,7 +1060,7 @@ public class GameUI{
 //                        hero.y = j;
 //                        hero.z = i;
 //                    }else if(floor[i][j][k]==LAVA){
-//                        ImageIcon lavaIcon = new ImageIcon("src/imageResource/Cell/Door/19.png");
+//                        ImageIcon lavaIcon = new ImageIcon("src/imageResource/Cell/Door/lava.png");
 //                        lavaIcon.setImage(lavaIcon.getImage().getScaledInstance(34,34,1));
 //                        cellLabel.setIcon(lavaIcon);
 //                        Lava lava = new Lava();
@@ -1034,7 +1071,7 @@ public class GameUI{
 //                        lavas[i][j][k]=lava;
 //
 //                    }else if(floor[i][j][k]==DARKSTAR){
-//                        ImageIcon lavaIcon = new ImageIcon("src/imageResource/Cell/Door/20.png");
+//                        ImageIcon lavaIcon = new ImageIcon("src/imageResource/Cell/Door/darkstar.png");
 //                        lavaIcon.setImage(lavaIcon.getImage().getScaledInstance(34,34,1));
 //                        cellLabel.setIcon(lavaIcon);
 //                        DarkStar darkStar = new DarkStar();
@@ -1046,7 +1083,7 @@ public class GameUI{
 //
 //
 //                    }else if(floor[i][j][k]==UPSTAIR){
-//                        ImageIcon upstairIcon = new ImageIcon("src/imageResource/Cell/Stairs/1.png");
+//                        ImageIcon upstairIcon = new ImageIcon("src/imageResource/Cell/Stairs/wallcell.png");
 //                        upstairIcon.setImage(upstairIcon.getImage().getScaledInstance(34,34,1));
 //                        cellLabel.setIcon(upstairIcon);
 //                        Upstair upstair = new Upstair();
@@ -1057,7 +1094,7 @@ public class GameUI{
 //                        upstair.gameObjectLabel = cellLabel;
 //                        upstairs[i][j][k]=upstair;
 //                    }else if(floor[i][j][k]==DOWNSTAIR){
-//                        ImageIcon downIcon = new ImageIcon("src/imageResource/Cell/Stairs/2.png");
+//                        ImageIcon downIcon = new ImageIcon("src/imageResource/Cell/Stairs/downstair.png");
 //                        downIcon.setImage(downIcon.getImage().getScaledInstance(34,34,1));
 //                        cellLabel.setIcon(downIcon);
 //                        DownStair downStair = new DownStair();
@@ -1068,7 +1105,7 @@ public class GameUI{
 //                        downStair.gameObjectLabel = cellLabel;
 //                        downStairs[i][j][k]=downStair;
 //                    }else if(floor[i][j][k]==REDDOOR){
-//                        ImageIcon redDoorIcon = new ImageIcon("src/imageResource/Cell/Door/4.png");
+//                        ImageIcon redDoorIcon = new ImageIcon("src/imageResource/Cell/Door/reddoor.png");
 //                        redDoorIcon.setImage(redDoorIcon.getImage().getScaledInstance(34,34,1));
 //                        cellLabel.setIcon(redDoorIcon);
 //                        RedDoor redDoor = new RedDoor();
@@ -1079,7 +1116,7 @@ public class GameUI{
 //                        redDoor.gameObjectLabel = cellLabel;
 //                        redDoors[i][j][k]=redDoor;
 //                    }else if(floor[i][j][k]==REDKEY){
-//                        ImageIcon redKeyIcon = new ImageIcon("src/imageResource/Cell/Key/8.png");
+//                        ImageIcon redKeyIcon = new ImageIcon("src/imageResource/Cell/Key/redkey.png");
 //                        redKeyIcon.setImage(redKeyIcon.getImage().getScaledInstance(34,34,1));
 //                        cellLabel.setIcon(redKeyIcon);
 //                        RedKey redKey = new RedKey();
@@ -1090,7 +1127,7 @@ public class GameUI{
 //                        redKey.gameObjectLabel = cellLabel;
 //                        redKeys[i][j][k]=redKey;
 //                    }else if(floor[i][j][k]==YELLOWKEY){
-//                        ImageIcon yellowKeyIcon = new ImageIcon("src/imageResource/Cell/Key/6.png");
+//                        ImageIcon yellowKeyIcon = new ImageIcon("src/imageResource/Cell/Key/yellowkey.png");
 //                        yellowKeyIcon.setImage(yellowKeyIcon.getImage().getScaledInstance(34,34,1));
 //                        cellLabel.setIcon(yellowKeyIcon);
 //                        YellowKey yellowKey = new YellowKey();
@@ -1188,7 +1225,7 @@ public class GameUI{
     }
 
     public void heroDoAction(KeyEvent e) {
-        hero.gameObjectLabel.setVisible(false);
+//        hero.gameObjectLabel.setVisible(false);
         if (e.getKeyCode()==KeyEvent.VK_UP){
             heroGoUp();
         }
@@ -1204,7 +1241,7 @@ public class GameUI{
         else{
             System.out.println("is not ready!");
         }
-        hero.gameObjectLabel.setVisible(true);
+//        hero.gameObjectLabel.setVisible(true);
         reLoadGameFrame();
     }
 
@@ -1224,13 +1261,13 @@ public class GameUI{
     public void heroGoRight() {
         hero.y = hero.y+1;
         if(hero.y<=10){
-            if(floor[hero.z][hero.y][hero.x]==BLANK){//空白格子，允许站上去
+            if(gameObjects[hero.z][hero.y][hero.x].type.equals("blank")){//空白格子，允许站上去
                 //修改英雄标签所在的位置
                 hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,hero.gameObjectLabel.getLocation().y);
                 //英雄现在站立的地方变成英雄的坐标
-                floor[hero.z][hero.y][hero.x]=HERO;
+                gameObjects[hero.z][hero.y][hero.x].type="hero";
                 //英雄原本站立的地方变成空地
-                floor[hero.z][hero.y-1][hero.x]=BLANK;
+                gameObjects[hero.z][hero.y-1][hero.x].type="blank";
 
             }else if(gameObjects[hero.z][hero.y][hero.x].type.equals("yellowdoor")){//黄门，允许开门
                 if (hero.yellowKey>=1){//黄钥匙够
@@ -1241,9 +1278,9 @@ public class GameUI{
                     //修改英雄标签所在的位置
                     hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,hero.gameObjectLabel.getLocation().y);
                     //英雄现在站立的地方变成英雄的坐标
-                    floor[hero.z][hero.y][hero.x]=HERO;
+                    gameObjects[hero.z][hero.y][hero.x].type="hero";
                     //英雄原本站立的地方变成空地
-                    floor[hero.z][hero.y-1][hero.x]=BLANK;
+                    gameObjects[hero.z][hero.y-1][hero.x].type="blank";
                 }else{
                     hero.y = hero.y-1;
                 }
@@ -1298,8 +1335,8 @@ public class GameUI{
         hero.y = hero.y-1;
         LeftORRight = 1;
         if(hero.y>=0){
-            if(floor[hero.z][hero.y][hero.x]==BLANK){
-                heroMove(BLANK);
+            if(gameObjects[hero.z][hero.y][hero.x].type.equals("blank")){
+                heroMove("blank");
             }
             else if (gameObjects[hero.z][hero.y][hero.x].type.equals("redkey")){//踩到红钥匙
                 System.out.println("得到红钥匙");
@@ -1310,14 +1347,14 @@ public class GameUI{
                 //修改英雄标签所在的位置
                 hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
                 //英雄现在站立的地方变成英雄的坐标
-                floor[hero.z][hero.y][hero.x]=HERO;
+                gameObjects[hero.z][hero.y][hero.x].type="hero";
                 //英雄原本站立的地方变成空地
-                floor[hero.z][hero.y+1][hero.x]=BLANK;
+                gameObjects[hero.z][hero.y+1][hero.x].type="blank";
 
 
             }
             else if (gameObjects[hero.z][hero.y][hero.x].type.equals("yellowkey")){//踩到黄钥匙
-                heroMove(YELLOWKEY);
+                heroMove("yellowkey");
             }
             else if(gameObjects[hero.z][hero.y][hero.x].type.equals("yellowdoor")){//黄门，允许开门
                 if (hero.yellowKey>=1){//黄钥匙够
@@ -1328,9 +1365,9 @@ public class GameUI{
                     //修改英雄标签所在的位置
                     hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
                     //英雄现在站立的地方变成英雄的坐标
-                    floor[hero.z][hero.y][hero.x]=HERO;
+                    gameObjects[hero.z][hero.y][hero.x].type="hero";
                     //英雄原本站立的地方变成空地
-                    floor[hero.z][hero.y+1][hero.x]=BLANK;
+                    gameObjects[hero.z][hero.y+1][hero.x].type="blank";
                 }else{
                     hero.y = hero.y+1;
                 }
@@ -1342,11 +1379,11 @@ public class GameUI{
                 //楼层数+1
                 floorNum = floorNum+1;
                 //原本站立的地方变成空地
-                floor[hero.z][hero.y+1][hero.x]=BLANK;
+                gameObjects[hero.z][hero.y+1][hero.x].type="blank";
                 //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
                 SetHeroCoor(true);//此方法寻找上一层的downStairs的在floor上的坐标然后选取一个可以站立的位置赋值给hero
                 //将英雄的现在的位置在floor里面设置值
-                floor[hero.z][hero.y][hero.x]=HERO;
+                gameObjects[hero.z][hero.y][hero.x].type="hero";
                 //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
                 //
 
@@ -1362,9 +1399,9 @@ public class GameUI{
                     //修改英雄标签所在的位置
                     hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
                     //英雄现在站立的地方变成英雄的坐标
-                    floor[hero.z][hero.y][hero.x]=HERO;
+                    gameObjects[hero.z][hero.y][hero.x].type="hero";
                     //原本站立的地方变成空地
-                    floor[hero.z][hero.y+1][hero.x]=BLANK;
+                    gameObjects[hero.z][hero.y+1][hero.x].type="blank";
 
 
                 }else{//打不过
@@ -1375,16 +1412,16 @@ public class GameUI{
             else if(gameObjects[hero.z][hero.y][hero.x].type.equals("skeleton")){//遇到骷髅人
                 System.out.println("遇到骷髅人");
                 //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
-                boolean fightingResult = fight(gameObjects[hero.z][hero.y][hero.x]);
+                boolean fightingResult = fight((Monster) gameObjects[hero.z][hero.y][hero.x]);
                 if (fightingResult){//打得过
                     //史莱姆的标签直接从bottom当中剔除
                     bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
                     //修改英雄标签所在的位置
                     hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
                     //英雄现在站立的地方变成英雄的坐标
-                    floor[hero.z][hero.y][hero.x]=HERO;
+                    gameObjects[hero.z][hero.y][hero.x].type="hero";
                     //原本站立的地方变成空地
-                    floor[hero.z][hero.y+1][hero.x]=BLANK;
+                    gameObjects[hero.z][hero.y+1][hero.x].type="blank";
 
 
                 }else{//打不过
@@ -1397,16 +1434,16 @@ public class GameUI{
             else if(gameObjects[hero.z][hero.y][hero.x].type.equals("redslime")){//遇到红色史莱姆
                 System.out.println("遇到红色史莱姆");
                 //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
-                boolean fightingResult = fight(gameObjects[hero.z][hero.y][hero.x]);
+                boolean fightingResult = fight((Monster) gameObjects[hero.z][hero.y][hero.x]);
                 if (fightingResult){//打得过
                     //史莱姆的标签直接从bottom当中剔除
                     bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
                     //修改英雄标签所在的位置
                     hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
                     //英雄现在站立的地方变成英雄的坐标
-                    floor[hero.z][hero.y][hero.x]=HERO;
+                    gameObjects[hero.z][hero.y][hero.x].type="hero";
                     //原本站立的地方变成空地
-                    floor[hero.z][hero.y+1][hero.x]=BLANK;
+                    gameObjects[hero.z][hero.y+1][hero.x].type="blank";
 
 
                 }else{//打不过
@@ -1598,16 +1635,16 @@ public class GameUI{
         UpORDown=-1;
         hero.x = hero.x+1;
         if(hero.x<=10){
-            if(floor[hero.z][hero.y][hero.x]==BLANK){
-                heroMove(BLANK);
+            if(gameObjects[hero.z][hero.y][hero.x].type.equals("blank")){
+                heroMove("blank");
             }else if(gameObjects[hero.z][hero.y][hero.x].type.equals("downstair")){//下楼
-                heroMove(DOWNSTAIR);
+                heroMove("downstair");
             }else if(gameObjects[hero.z][hero.y][hero.x].type.equals("upstair")){//上楼
-                heroMove(UPSTAIR);
+                heroMove("upstair");
             }else if(gameObjects[hero.z][hero.y][hero.x].type.equals("yellowdoor")){//黄门，允许开门
-                heroMove(YELLOWDOOR);
+                heroMove("yellowdoor");
             }else if(gameObjects[hero.z][hero.y][hero.x].type.equals("reddoor")){//红门，允许开门
-                heroMove(REDDOOR);
+                heroMove("reddoor");
             }else{
                 hero.x = hero.x-1;
             }
@@ -1618,28 +1655,28 @@ public class GameUI{
 
     }
 
-    public void heroMove(int destination){
+    public void heroMove(String destination){
         //destination就是目标，也就是黄门，史莱姆，墙，上下楼这些
-        if(destination==BLANK){//空白格子，允许站上去
+        if(destination.equals("blank")){//空白格子，允许站上去
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-LeftORRight*34,hero.gameObjectLabel.getLocation().y-34*UpORDown);
-            floor[hero.z][hero.y][hero.x]=HERO;
-            floor[hero.z][hero.y+LeftORRight][hero.x+UpORDown]=destination;
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type=destination;
 //                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
 //                floor[hero.z][hero.y][hero.x]=HERO;
 //                floor[hero.z][hero.y+1][hero.x]=BLANK;
         }
-        else if(hero.yellowKey>=1&&destination==YELLOWDOOR){
+        else if(hero.yellowKey>=1&&destination=="yellowdoor"){
             System.out.println("踩到黄门");
             hero.yellowKey = hero.yellowKey-1;//黄钥匙数量-1
             //黄门的标签直接设置为空
-            bottom.remove(yellowDoors[hero.z][hero.y][hero.x].gameObjectLabel);
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             //英雄现在站立的地方变成英雄的坐标
-            floor[hero.z][hero.y][hero.x]=HERO;
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
             //英雄原本站立的地方变成空地
-            floor[hero.z][hero.y][hero.x+UpORDown]=BLANK;
+            gameObjects[hero.z][hero.y][hero.x+UpORDown].type="blank";
 
             //                if (hero.yellowKey>=1){//黄钥匙够
 //                    System.out.println("踩到黄门");
@@ -1656,60 +1693,59 @@ public class GameUI{
 //                    hero.y = hero.y-1;
 //                }
         }
-        else if (hero.redKey>=1&&destination==REDDOOR){
+        else if (hero.redKey>=1&&destination=="reddoor"){
             System.out.println("踩到红门");
             hero.redKey = hero.redKey-1;//红钥匙数量-1
             //从bottom当中去除此红门
-            bottom.remove(redDoors[hero.z][hero.y][hero.x].gameObjectLabel);
-//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
             //修改英雄标签所在的位置
-            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y-34);
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             //英雄现在站立的地方变成英雄的坐标
-            floor[hero.z][hero.y][hero.x]=HERO;
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
             //英雄原本站立的地方变成空地
-            floor[hero.z][hero.y][hero.x+1]=BLANK;
+            gameObjects[hero.z][hero.y][hero.x+UpORDown].type="blank";
 
         }
-        else if (destination==UPSTAIR){
+        else if (destination=="upstair"){
             System.out.println("上楼");
             //楼层数+1
             floorNum = floorNum+1;
             //原本站立的地方变成空地
-            floor[hero.z][hero.y][hero.x+UpORDown]=BLANK;//hero.x-1
+            gameObjects[hero.z][hero.y][hero.x+UpORDown].type="blank";//hero.x-1
             //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
             SetHeroCoor(true);//此方法寻找上一层的downStairs的在floor上的坐标然后选取一个可以站立的位置赋值给hero
             //将英雄的现在的位置在floor里面设置值
-            floor[hero.z][hero.y][hero.x]=HERO;
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
             //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
             //
 
         }
-        else if (destination==DOWNSTAIR){
+        else if (destination=="downstair"){
             System.out.println("下楼");
             //楼层数-1
             floorNum = floorNum-1;
             //原本站立的地方变成空地
-            floor[hero.z][hero.y][hero.x+UpORDown]=BLANK;
+            gameObjects[hero.z][hero.y][hero.x+UpORDown].type="blank";
             //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
             SetHeroCoor(false);//此方法寻找上一层的downStairs的在floor上的坐标然后选取一个可以站立的位置赋值给hero
             //将英雄的现在的位置在floor里面设置值
-            floor[hero.z][hero.y][hero.x]=HERO;
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
             //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
             //
             System.out.println("下楼");
         }
-        else if (destination ==YELLOWKEY){
+        else if (destination =="yellowkey"){
             System.out.println("得到黄钥匙");
             hero.yellowKey = hero.yellowKey+1;//
             //红钥匙的标签直接设置为空
-            bottom.remove(yellowKeys[hero.z][hero.y][hero.x].gameObjectLabel);
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y);
             //英雄现在站立的地方变成英雄的坐标
-            floor[hero.z][hero.y][hero.x]=HERO;
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
             //英雄原本站立的地方变成空地
-            floor[hero.z][hero.y+LeftORRight][hero.x]=BLANK;
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x].type="blank";
         }else{
             hero.x = hero.x+UpORDown;
             hero.y = hero.y+LeftORRight;
@@ -1721,20 +1757,20 @@ public class GameUI{
         UpORDown = 1;
         hero.x = hero.x-1;
         if(hero.x>=0){
-            if(floor[hero.z][hero.y][hero.x]==BLANK){//空白格子，允许站上去
-                heroMove(BLANK);
+            if(gameObjects[hero.z][hero.y][hero.x].type.equals("blank")){//空白格子，允许站上去
+                heroMove("blank");
             }
             else if(gameObjects[hero.z][hero.y][hero.x].type.equals("yellowdoor")){//黄门，允许开门
-                heroMove(YELLOWDOOR);
+                heroMove("yellowdoor");
             }
-            else if(gameObjects[hero.z][hero.y][hero.x].equals("reddoor")){//红门，允许开门
-                heroMove(REDDOOR);
+            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("reddoor")){//红门，允许开门
+                heroMove("reddoor");
             }
             else if(gameObjects[hero.z][hero.y][hero.x].type.equals("upstair")){//上楼
-                heroMove(UPSTAIR);
+                heroMove("upstair");
             }
             else if(gameObjects[hero.z][hero.y][hero.x].type.equals("downstair")){//下楼
-                heroMove(DOWNSTAIR);
+                heroMove("downstair");
             }else{
                 hero.x = hero.x+1;
             }
