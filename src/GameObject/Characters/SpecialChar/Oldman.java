@@ -1,4 +1,4 @@
 package GameObject.Characters.SpecialChar;
 
-public class OldMan extends SpecialCharacter{
+public class Oldman extends SpecialCharacter{
 }

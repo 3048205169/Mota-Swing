@@ -227,81 +227,6 @@ public class GameUI{
         }
     }
 
-    public void SetHeroCoor1(boolean upOrDown) {
-//        if(upOrDown==true){
-//            for(int j=0;j<11;j++){
-//                for(int k=0;k<11;k++){
-//                    if (floor[floorNum][j][k]==DOWNSTAIR){
-//                        hero.z = floorNum;
-//                        hero.y = j;
-//                        hero.x = k;
-//                        hero.gameObjectLabel.setLocation(downStairs[floorNum][j][k].gameObjectLabel.getLocation().x,
-//                                downStairs[floorNum][j][k].gameObjectLabel.getLocation().y);
-//                    }
-//                }
-//            }
-//
-//            //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
-//            if(hero.x-1>=0&&floor[hero.z][hero.y][hero.x-1]==BLANK){//上
-//                hero.x = hero.x-1;
-//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x ,hero.gameObjectLabel.getLocation().y-34);
-//
-//
-//            }else if(hero.x+1<=10&&floor[hero.z][hero.y][hero.x+1]==BLANK){//下
-//                hero.x = hero.x+1;
-//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y+34);
-//
-//            }else if(hero.y-1>=0&&floor[hero.z][hero.y-1][hero.x]==BLANK){//左
-//                hero.y = hero.y-1;
-//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,
-//                        hero.gameObjectLabel.getLocation().y);
-//            }else{//右
-//                hero.y = hero.y+1;
-//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,
-//                        hero.gameObjectLabel.getLocation().y);
-//            }
-//
-//
-//
-//
-//        }else {
-//
-//            for(int j=0;j<11;j++){
-//                for(int k=0;k<11;k++){
-//                    if (floor[floorNum][j][k]==UPSTAIR){
-//                        hero.z = floorNum;
-//                        hero.y = j;
-//                        hero.x = k;
-//                        hero.gameObjectLabel.setLocation(upstairs[floorNum][j][k].gameObjectLabel.getLocation().x,
-//                                upstairs[floorNum][j][k].gameObjectLabel.getLocation().y);
-//                    }
-//                }
-//            }
-//
-//            //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
-//            if(hero.x-1>=0&&floor[hero.z][hero.y][hero.x-1]==BLANK){//上
-//                hero.x = hero.x-1;
-//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x ,hero.gameObjectLabel.getLocation().y-34);
-//
-//
-//            }else if(hero.x+1<=10&&floor[hero.z][hero.y][hero.x+1]==BLANK){//下
-//                hero.x = hero.x+1;
-//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y+34);
-//
-//            }else if(hero.y-1>=0&&floor[hero.z][hero.y-1][hero.x]==BLANK){//左
-//                hero.y = hero.y-1;
-//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,
-//                        hero.gameObjectLabel.getLocation().y);
-//            }else{//右
-//                hero.y = hero.y+1;
-//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,
-//                        hero.gameObjectLabel.getLocation().y);
-//            }
-//
-//
-//
-//        }
-    }
 
 
     public void setBottom(){
@@ -330,7 +255,7 @@ public class GameUI{
     public void setAttributeLabels() {
         int[]yCoor = new int[]{-85,-55,-30,-5,25,50,90,125,155};
 
-        for (int i=0;i<hero.getClass().getDeclaredFields().length-4;i++){
+        for (int i=0;i<hero.getClass().getDeclaredFields().length;i++){
             JLabel attributeLabel = new JLabel();
             attributeLabel.setLocation(100,yCoor[i]);
             attributeLabel.setSize(200,300);
@@ -439,8 +364,6 @@ public class GameUI{
                 }
 
 
-
-
                 k=k+1;
                 if(k==11){
                     j=j+1;
@@ -460,178 +383,6 @@ public class GameUI{
 
 
 
-        //第一层
-//        floor[0][0][0] = CELL;
-//        floor[0][0][1] = CELL;
-//        floor[0][0][2] = CELL;
-//        floor[0][0][3] = CELL;
-//        floor[0][0][4] = CELL;
-//        floor[0][0][5] = CELL;
-//        floor[0][0][6] = CELL;
-//        floor[0][0][7] = CELL;
-//
-//        floor[0][10][0] = CELL;
-//        floor[0][10][1] = CELL;
-//        floor[0][10][2] = CELL;
-//        floor[0][10][3] = CELL;
-//        floor[0][10][4] = CELL;
-//        floor[0][10][5] = CELL;
-//        floor[0][10][6] = CELL;
-//        floor[0][10][7] = CELL;
-//
-//        floor[0][4][0] = CELL;
-//        floor[0][4][1] = CELL;
-//        floor[0][4][2] = CELL;
-//        floor[0][4][3] = CELL;
-//        floor[0][4][4] = CELL;
-//        floor[0][4][5] = CELL;
-//        floor[0][4][6] = CELL;
-//        floor[0][4][7] = CELL;
-//
-//        floor[0][6][0] = CELL;
-//        floor[0][6][1] = CELL;
-//        floor[0][6][2] = CELL;
-//        floor[0][6][3] = CELL;
-//        floor[0][6][4] = CELL;
-//        floor[0][6][5] = CELL;
-//        floor[0][6][6] = CELL;
-//        floor[0][6][7] = CELL;
-//
-//        floor[0][0][7] = CELL;
-//        floor[0][1][7] = CELL;
-//        floor[0][2][7] = CELL;
-//        floor[0][3][7] = CELL;
-//        floor[0][4][7] = CELL;
-//        floor[0][5][7] = YELLOWDOOR;
-//        floor[0][6][7] = CELL;
-//        floor[0][7][7] = CELL;
-//        floor[0][8][7] = CELL;
-//        floor[0][9][7] = CELL;
-//        floor[0][10][7] = CELL;
-//
-//        floor[0][1][6] = CELL;
-//        floor[0][1][8] = CELL;
-//
-//        floor[0][9][6] = CELL;
-//        floor[0][9][8] = CELL;
-//
-//        floor[0][3][8] = CELL;
-//        floor[0][7][8] = CELL;
-//
-//
-//        floor[0][5][9] = HERO;
-//        floor[0][4][8] = CELESTIAL;
-//
-//
-//
-//        floor[0][0][9] = LAVA;
-//        floor[0][1][9] = LAVA;
-//        floor[0][2][9] = LAVA;
-//        floor[0][3][9] = LAVA;
-//        floor[0][4][9] = LAVA;
-//
-//
-//        floor[0][0][10] = LAVA;
-//        floor[0][1][10] = LAVA;
-//        floor[0][2][10] = LAVA;
-//        floor[0][3][10] = LAVA;
-//        floor[0][4][10] = LAVA;
-//
-//        floor[0][6][9] = LAVA;
-//        floor[0][7][9] = LAVA;
-//        floor[0][8][9] = LAVA;
-//        floor[0][9][9] = LAVA;
-//        floor[0][10][9] = LAVA;
-//
-//
-//        floor[0][6][10] = LAVA;
-//        floor[0][7][10] = LAVA;
-//        floor[0][8][10] = LAVA;
-//        floor[0][9][10] = LAVA;
-//        floor[0][10][10] = LAVA;
-//
-//        floor[0][0][8] = LAVA;
-//        floor[0][2][8] = LAVA;
-//
-//        floor[0][8][8] = LAVA;
-//        floor[0][10][8] = LAVA;
-//
-//        floor[0][1][0] = DARKSTAR;
-//        floor[0][1][1] = DARKSTAR;
-//        floor[0][1][2] = DARKSTAR;
-//        floor[0][1][3] = DARKSTAR;
-//        floor[0][1][4] = DARKSTAR;
-//        floor[0][1][5] = DARKSTAR;
-//
-//        floor[0][2][0] = DARKSTAR;
-//        floor[0][2][1] = DARKSTAR;
-//        floor[0][2][2] = DARKSTAR;
-//        floor[0][2][3] = DARKSTAR;
-//        floor[0][2][4] = DARKSTAR;
-//        floor[0][2][5] = DARKSTAR;
-//        floor[0][2][6] = DARKSTAR;
-//
-//        floor[0][3][0] = DARKSTAR;
-//        floor[0][3][1] = DARKSTAR;
-//        floor[0][3][2] = DARKSTAR;
-//        floor[0][3][3] = DARKSTAR;
-//        floor[0][3][4] = DARKSTAR;
-//        floor[0][3][5] = DARKSTAR;
-//        floor[0][3][6] = DARKSTAR;
-//
-//        floor[0][9][0] = DARKSTAR;
-//        floor[0][9][1] = DARKSTAR;
-//        floor[0][9][2] = DARKSTAR;
-//        floor[0][9][3] = DARKSTAR;
-//        floor[0][9][4] = DARKSTAR;
-//        floor[0][9][5] = DARKSTAR;
-//
-//        floor[0][8][0] = DARKSTAR;
-//        floor[0][8][1] = DARKSTAR;
-//        floor[0][8][2] = DARKSTAR;
-//        floor[0][8][3] = DARKSTAR;
-//        floor[0][8][4] = DARKSTAR;
-//        floor[0][8][5] = DARKSTAR;
-//        floor[0][8][6] = DARKSTAR;
-//
-//        floor[0][7][0] = DARKSTAR;
-//        floor[0][7][1] = DARKSTAR;
-//        floor[0][7][2] = DARKSTAR;
-//        floor[0][7][3] = DARKSTAR;
-//        floor[0][7][4] = DARKSTAR;
-//        floor[0][7][5] = DARKSTAR;
-//        floor[0][7][6] = DARKSTAR;
-//
-//        floor[0][5][0] = UPSTAIR;
-//
-//
-//
-//
-//
-//        floor[1][5][10] = DOWNSTAIR;
-//
-//        floor[1][3][1] = CELL;
-//        floor[1][3][2] = CELL;
-//        floor[1][3][3] = CELL;
-//        floor[1][3][4] = CELL;
-//        floor[1][3][5] = CELL;
-//        floor[1][3][6] = CELL;
-//        floor[1][3][7] = CELL;
-//        floor[1][3][8] = CELL;
-//        floor[1][3][9] = CELL;
-//        floor[1][3][10] = CELL;
-//
-//        floor[1][0][1] = CELL;
-//        floor[1][1][1] = CELL;
-//        floor[1][2][1] = CELL;
-//        floor[1][3][1] = CELL;
-//        floor[1][4][1] = CELL;
-//        floor[1][5][1] = CELL;
-//        floor[1][6][1] = CELL;
-//        floor[1][7][1] = CELL;
-//        floor[1][8][1] = CELL;
-//        floor[1][9][1] = CELL;
-
 
 
     }
@@ -639,7 +390,7 @@ public class GameUI{
 
 
     public void updateStatus() {
-        for (int i=0;i<hero.getClass().getDeclaredFields().length-4;i++){
+        for (int i=0;i<hero.getClass().getDeclaredFields().length;i++){
             try{
                 attributeLabels[i].setText(""+hero.getClass().getDeclaredFields()[i].getInt(hero));
             }catch (Exception e){
