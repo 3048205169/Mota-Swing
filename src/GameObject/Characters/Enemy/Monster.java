@@ -11,11 +11,11 @@ public class Monster extends NPC {
     public int experience;
 
     public Monster(){
-        life = 50;
-        attack = 50;
-        coin = 50;
-        experience = 50;
-        defence = 50;
+        life = 5;
+        attack = 5;
+        coin = 5;
+        experience = 5;
+        defence = 5;
     }
 
 }
