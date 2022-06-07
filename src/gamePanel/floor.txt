@@ -208,7 +208,7 @@ wallcell
 redbottle
 redbottle
 wallcell
-monster
+junierwitch
 wallcell
 blank
 wallcell

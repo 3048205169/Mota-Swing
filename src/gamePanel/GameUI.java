@@ -112,11 +112,21 @@ public class GameUI{
 
 
     public void initMonsterNameSet(){
-        monsterNameSet.add("skeleton");
-        monsterNameSet.add("skeletonsoldier");
-        monsterNameSet.add("redslime");
-        monsterNameSet.add("greenslime");
-        monsterNameSet.add("devilking");
+        Class[] classByPackage = ClassUtils.getClassByPackage("GameObject.Characters.Enemy");
+        for (Class aClass : classByPackage) {
+            String className = aClass.getName();
+            if (className.equals("Monster")){
+                continue;
+            }
+            className = className.replace("GameObject.Characters.Enemy.","");
+            className = className.toLowerCase();
+            monsterNameSet.add(className);
+        }
+//        monsterNameSet.add("skeleton");
+//        monsterNameSet.add("skeletonsoldier");
+//        monsterNameSet.add("redslime");
+//        monsterNameSet.add("greenslime");
+//        monsterNameSet.add("devilking");
     }
 
     public GameUI(){
