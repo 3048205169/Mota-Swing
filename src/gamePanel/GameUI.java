@@ -1,6 +1,8 @@
 package gamePanel;
 import GameObject.Characters.Enemy.*;
 import GameObject.Characters.Hero;
+import GameObject.Characters.SpecialChar.Firstgreedy;
+import GameObject.Characters.SpecialChar.Firstgreedymiddle;
 import GameObject.GameObject;
 
 import GameObject.Matter.Item.Bottle.Bluebottle;
@@ -27,10 +29,11 @@ public class GameUI{
     JLabel floorLabel = new JLabel();
 
     Map<String,Integer> cellMap = new HashMap<>();
-
+    JLabel fuck = new JLabel();
     JFrame gameFrame = new JFrame();
     JLabel bottom = new JLabel();
     JPanel gamePanel = new JPanel();
+    JPanel shopPanel = new JPanel();
     JLabel bgLabel = new JLabel();
 //    int[][][] floor = new int[21][11][11];
     GameObject [][][] gameObjects = new GameObject[21][11][11];
@@ -38,34 +41,6 @@ public class GameUI{
     Hero hero = new Hero();
 
     Set<String>monsterNameSet = new HashSet<>();
-
-
-
-
-//    Celestial[][][]celestials = new Celestial[21][11][11];
-//    GreenSlime[][][]greenSlimes = new GreenSlime[21][11][11];
-//    Skeleton[][][]skeletons = new Skeleton[21][11][11];
-//    SkeletonSoldier[][][]skeletonSoldiers = new SkeletonSoldier[21][11][11];
-//    RedSlime[][][]redSlimes = new RedSlime[21][11][11];
-//
-//
-//    YellowDoor[][][]yellowDoors = new YellowDoor[21][11][11];
-//    BlueDoor[][][]blueDoors = new BlueDoor[21][11][11];
-//    RedDoor[][][]redDoors = new RedDoor[21][11][11];
-//
-//
-//    RedKey[][][]redKeys = new RedKey[21][11][11];
-//    BlueKey[][][]blueKeys = new BlueKey[21][11][11];
-//    YellowKey[][][]yellowKeys = new YellowKey[21][11][11];
-//
-//    WallCell[][][]wallCells = new WallCell[21][11][11];
-//    Lava[][][]lavas = new Lava[21][11][11];
-//    DarkStar[][][]darkStars = new DarkStar[21][11][11];
-//
-//
-//    Upstair[][][]upstairs = new Upstair[21][11][11];
-//    DownStair[][][]downStairs = new DownStair[21][11][11];
-
 
     JLabel[]attributeLabels = new JLabel[9];
 
@@ -77,35 +52,6 @@ public class GameUI{
     public final int HERO = 1;
 
 
-//    public final int CELESTIAL = 2;
-//
-//    public final int YELLOWDOOR = 10;
-//    public final int BLUEDOOR = 11;
-//    public final int REDDOOR = 12;
-//
-//    public final int CELL = 20;
-//    public final int LAVA = 21;
-//    public final int DARKSTAR = 22;
-//
-//    public final int UPSTAIR = 30;
-//    public final int DOWNSTAIR = 31;
-//
-//    public final int ITEM = 40;
-//    public final int YELLOWKEY = 50;
-//    public final int REDKEY = 51;
-//    public final int BLUEKEY = 52;
-//
-//    public final int BLUEBOTTLE = 61;
-//    public final int REDBOTTLE = 62;
-//
-//    public final int BLUEDIAMOND = 71;
-//    public final int REDDIAMOND = 72;
-//
-//    public final int MONSTER = -1;
-//    public final int GREENSLIME = 101;
-//    public final int SKELETON = 102;
-//    public final int SKELETONSOLDIER = 103;
-//    public final int REDSLIME = 104;
 
 
     public void initMonsterNameSet(){
@@ -122,6 +68,9 @@ public class GameUI{
     }
 
     public GameUI(){
+        shopPanel.add(fuck);
+        gamePanel.add(shopPanel);
+
         initMonsterNameSet();
         initCellMap();
         setFloor();//设置棋盘，[21][11][11]每一个点都放着东西，不是勇士就是墙就是敌人或者是道具
@@ -140,6 +89,7 @@ public class GameUI{
 
         bgLabel.add(bottom);
         gamePanel.add(bgLabel);
+
         gameFrame.setContentPane(gamePanel);
 
 
@@ -354,6 +304,23 @@ public class GameUI{
 
                     gameObjects[i][j][k] = diamond;//todo
                 }
+                else if(line.contains("firstgreedy")){
+                    Firstgreedy firstgreedy = new Firstgreedy();
+                    try{
+                        Constructor<?> constructor = Class.forName("GameObject.Characters.SpecialChar." + StringUtils.capitalize(line)).getConstructor();
+                        firstgreedy = (Firstgreedy) constructor.newInstance();
+                        firstgreedy.type = line;
+                        firstgreedy.x = k;
+                        firstgreedy.y = j;
+                        firstgreedy.z = i;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    gameObjects[i][j][k] = firstgreedy;//todo
+                }
+
+
                 else {
                     GameObject gameObject = new GameObject();
                     gameObject.type = line;
@@ -950,26 +917,39 @@ public class GameUI{
                 hero.y = hero.y+1;
             }
         }
+        else if (destination.contains("greedy")){
+            //遇到商店老板或者叫贪婪之神
+            System.out.println("遇到商店老板");
+            //显示交易的界面
+            if(destination.contains("first")){
+                gamePanel.setLayout(null);
 
-//        else if (destination == "skeleton"){
-//            System.out.println("遇到骷髅人");
-//            //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
-//            boolean fightingResult = fight((Monster) gameObjects[hero.z][hero.y][hero.x]);
-//            if (fightingResult){//打得过
-//                //史莱姆的标签直接从bottom当中剔除
-//                bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
-//                //修改英雄标签所在的位置
-//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
-//                //英雄现在站立的地方变成英雄的坐标
-//                gameObjects[hero.z][hero.y][hero.x].type="hero";
-//                //原本站立的地方变成空地
-//                gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
-//
-//
-//            }else{//打不过
-//                hero.y = hero.y+1;
-//            }
-//        }
+                fuck.setSize(100,100);
+                fuck.setLocation(100,100);
+                fuck.setVisible(true);
+                fuck.setOpaque(true);
+                fuck.setText("fuck");
+                fuck.setBackground(Color.GRAY);
+                gamePanel.add(fuck);
+//                shopPanel.setSize(500,500);
+//                shopPanel.setLocation(100,100);
+//                shopPanel.setVisible(true);
+//                shopPanel.setOpaque(true);
+//                shopPanel.setBackground(Color.GRAY);
+//                shopPanel.setToolTipText("fuck");
+
+
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+                //英雄现在站立的地方变成英雄的坐标
+                gameObjects[hero.z][hero.y][hero.x].type="hero";
+                //英雄原本站立的地方变成空地
+                gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+
+            }
+
+
+
+        }
 
         else{
             hero.x = hero.x+UpORDown;
