@@ -2,7 +2,6 @@ package gamePanel;
 import GameObject.Characters.Enemy.*;
 import GameObject.Characters.Hero;
 import GameObject.Characters.SpecialChar.Firstgreedy;
-import GameObject.Characters.SpecialChar.Firstgreedymiddle;
 import GameObject.GameObject;
 
 import GameObject.Matter.Item.Bottle.Bluebottle;
@@ -29,7 +28,7 @@ public class GameUI{
     JLabel floorLabel = new JLabel();
 
     Map<String,Integer> cellMap = new HashMap<>();
-    JLabel fuck = new JLabel();
+    JLabel shopLabel = new JLabel();
     JFrame gameFrame = new JFrame();
     JLabel bottom = new JLabel();
     JPanel gamePanel = new JPanel();
@@ -68,7 +67,7 @@ public class GameUI{
     }
 
     public GameUI(){
-        shopPanel.add(fuck);
+        shopPanel.add(shopLabel);
         gamePanel.add(shopPanel);
 
         initMonsterNameSet();
@@ -924,26 +923,76 @@ public class GameUI{
             if(destination.contains("first")){
                 gamePanel.setLayout(null);
 
-                fuck.setSize(100,100);
-                fuck.setLocation(100,100);
-                fuck.setVisible(true);
-                fuck.setOpaque(true);
-                fuck.setText("fuck");
-                fuck.setBackground(Color.GRAY);
-                gamePanel.add(fuck);
-//                shopPanel.setSize(500,500);
-//                shopPanel.setLocation(100,100);
-//                shopPanel.setVisible(true);
-//                shopPanel.setOpaque(true);
-//                shopPanel.setBackground(Color.GRAY);
-//                shopPanel.setToolTipText("fuck");
+                shopLabel.setSize(150,200);
+                shopLabel.setLocation(430,120);
+                shopLabel.setVisible(true);
+                shopLabel.setOpaque(true);
+                shopLabel.setBackground(Color.GRAY);
+
+                JLabel title = new JLabel();
+                title.setLayout(null);
+                title.setSize(150,40);
+                title.setLocation(0,0);
+                title.setVisible(true);
+                title.setOpaque(true);
+                title.setBackground(Color.WHITE);
+                title.setText("献祭就能更强");
+
+                JLabel lifeImprove = new JLabel();
+                lifeImprove.setLayout(null);
+                lifeImprove.setSize(150,40);
+                lifeImprove.setLocation(0,40);
+                lifeImprove.setVisible(true);
+                lifeImprove.setOpaque(true);
+
+                lifeImprove.setBackground(Color.YELLOW);
+                lifeImprove.setText("生命+800");
+
+                JLabel attackImprove = new JLabel();
+                attackImprove.setLayout(null);
+                attackImprove.setSize(150,40);
+                attackImprove.setLocation(0,80);
+                attackImprove.setVisible(true);
+                attackImprove.setOpaque(true);
+
+                attackImprove.setBackground(Color.PINK);
+                attackImprove.setText("攻击+800");
+
+                JLabel defenceImprove = new JLabel();
+                defenceImprove.setLayout(null);
+                defenceImprove.setSize(150,40);
+                defenceImprove.setLocation(0,120);
+                defenceImprove.setVisible(true);
+                defenceImprove.setOpaque(true);
+                defenceImprove.setBackground(Color.ORANGE);
+                defenceImprove.setText("防御+800");
+
+                JLabel quit = new JLabel();
+                quit.setLayout(null);
+                quit.setSize(150,40);
+                quit.setLocation(0,160);
+                quit.setVisible(true);
+                quit.setOpaque(true);
+
+                quit.setBackground(Color.CYAN);
+                quit.setText("取消");
+
+                shopLabel.add(title);
+                shopLabel.add(lifeImprove);
+                shopLabel.add(attackImprove);
+                shopLabel.add(defenceImprove);
+                shopLabel.add(quit);
 
 
-                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
-                //英雄现在站立的地方变成英雄的坐标
-                gameObjects[hero.z][hero.y][hero.x].type="hero";
-                //英雄原本站立的地方变成空地
-                gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+                gamePanel.add(shopLabel);
+
+//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+//                //英雄现在站立的地方变成英雄的坐标
+//                gameObjects[hero.z][hero.y][hero.x].type="hero";
+//                //英雄原本站立的地方变成空地
+//                gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+                hero.x = hero.x+UpORDown;
+                hero.y = hero.y+LeftORRight;
 
             }
 
