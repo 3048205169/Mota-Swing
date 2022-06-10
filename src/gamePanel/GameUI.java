@@ -1,17 +1,17 @@
 package gamePanel;
-import Characters.Celestial.Celestial;
-import Characters.Enemy.GreenSlime;
-import Characters.Enemy.Monster;
-import Characters.Enemy.Skeleton;
-import Characters.Enemy.SkeletonSoldier;
-import Characters.Hero;
-import Matter.Door.*;
-import Matter.Key.BlueKey;
-import Matter.Key.RedKey;
-import Matter.Key.YellowKey;
-import Matter.Stairs.DownStair;
-import Matter.Stairs.Upstair;
-import Matter.WallCell;
+import GameObject.Characters.Enemy.*;
+import GameObject.Characters.Hero;
+import GameObject.Characters.SpecialChar.Firstgreedy;
+import GameObject.GameObject;
+
+import GameObject.Matter.Item.Bottle.Bluebottle;
+import GameObject.Matter.Item.Bottle.Bottle;
+import GameObject.Matter.Item.Bottle.Redbottle;
+import GameObject.Matter.Item.Diamond.Bluediamond;
+import GameObject.Matter.Item.Diamond.Diamond;
+import GameObject.Matter.Item.Diamond.Reddiamond;
+import GameObject.Matter.Item.Key.Key;
+import com.sun.xml.internal.ws.util.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,10 +19,8 @@ import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Constructor;
+import java.util.*;
 
 public class GameUI{
 
@@ -30,83 +28,56 @@ public class GameUI{
     JLabel floorLabel = new JLabel();
 
     Map<String,Integer> cellMap = new HashMap<>();
-
+    JLabel shopLabel = new JLabel();
     JFrame gameFrame = new JFrame();
     JLabel bottom = new JLabel();
     JPanel gamePanel = new JPanel();
+    JPanel shopPanel = new JPanel();
     JLabel bgLabel = new JLabel();
-    int[][][] floor = new int[21][11][11];
+//    int[][][] floor = new int[21][11][11];
+    GameObject [][][] gameObjects = new GameObject[21][11][11];
 
     Hero hero = new Hero();
-    Celestial[][][]celestials = new Celestial[21][11][11];
-    GreenSlime[][][]greenSlimes = new GreenSlime[21][11][11];
-    Skeleton[][][]skeletons = new Skeleton[21][11][11];
-    SkeletonSoldier[][][]skeletonSoldiers = new SkeletonSoldier[21][11][11];
 
-
-
-    YellowDoor[][][]yellowDoors = new YellowDoor[21][11][11];
-    BlueDoor[][][]blueDoors = new BlueDoor[21][11][11];
-    RedDoor[][][]redDoors = new RedDoor[21][11][11];
-
-
-    RedKey[][][]redKeys = new RedKey[21][11][11];
-    BlueKey[][][]blueKeys = new BlueKey[21][11][11];
-    YellowKey[][][]yellowKeys = new YellowKey[21][11][11];
-
-    List<WallCell> wallCells = new ArrayList<>();
-    List<Lava> lavas = new ArrayList<>();
-    List<DarkStar>darkStars = new ArrayList<>();
-
-    Upstair[][][]upstairs = new Upstair[21][11][11];
-    DownStair[][][]downStairs = new DownStair[21][11][11];
-
-
+    Set<String>monsterNameSet = new HashSet<>();
 
     JLabel[]attributeLabels = new JLabel[9];
+
+    public int UpORDown =  0;
+    public int LeftORRight = 0;
 
 
     public final int BLANK = 0;
     public final int HERO = 1;
-    public final int CELESTIAL = 2;
-
-    public final int YELLOWDOOR = 10;
-    public final int BLUEDOOR = 11;
-    public final int REDDOOR = 12;
-
-    public final int CELL = 20;
-    public final int LAVA = 21;
-    public final int DARKSTAR = 22;
-
-    public final int UPSTAIR = 30;
-    public final int DOWNSTAIR = 31;
-
-    public final int ITEM = 40;
-    public final int YELLOWKEY = 50;
-    public final int REDKEY = 51;
-    public final int BLUEKEY = 52;
-
-    public final int BLUEBOTTLE = 61;
-    public final int REDBOTTLE = 62;
-
-    public final int BLUEDIAMOND = 71;
-    public final int REDDIAMOND = 72;
-
-    public final int MONSTER = -1;
-    public final int GREENSLIME = 101;
-    public final int SKELETON = 102;
-    public final int SKELETONSOLDIER = 103;
 
 
+
+
+    public void initMonsterNameSet(){
+        Class[] classByPackage = ClassUtils.getClassByPackage("GameObject.Characters.Enemy");
+        for (Class aClass : classByPackage) {
+            String className = aClass.getName();
+            if (className.equals("Monster")){
+                continue;
+            }
+            className = className.replace("GameObject.Characters.Enemy.","");
+            className = className.toLowerCase();
+            monsterNameSet.add(className);
+        }
+    }
 
     public GameUI(){
+        shopPanel.add(shopLabel);
+        gamePanel.add(shopPanel);
+
+        initMonsterNameSet();
         initCellMap();
         setFloor();//设置棋盘，[21][11][11]每一个点都放着东西，不是勇士就是墙就是敌人或者是道具
         JFrame.setDefaultLookAndFeelDecorated(true);
         gameFrame.setSize(820,600);
         setAttributeLabels();
         setGameFrame();//设置gameFrame，比如大小，高度，还有键盘的触发事件
-        setBgLael();
+        setBgLabel();
         setBottom();
 
         setCells();//设置所有的棋盘上的格子
@@ -117,40 +88,97 @@ public class GameUI{
 
         bgLabel.add(bottom);
         gamePanel.add(bgLabel);
+
         gameFrame.setContentPane(gamePanel);
 
 
     }
 
     public void initCellMap(){
-        cellMap.put("item",ITEM);
         cellMap.put("blank",BLANK);
-        cellMap.put("yellowkey",YELLOWKEY);
-        cellMap.put("downstair",DOWNSTAIR);
-        cellMap.put("bluebottle",BLUEBOTTLE);
-        cellMap.put("redkey",REDKEY);
-        cellMap.put("celestial",CELESTIAL);
-        cellMap.put("bluekey",BLUEKEY);
-        cellMap.put("cell",CELL);
-        cellMap.put("upstair",UPSTAIR);
-        cellMap.put("reddiamond",REDDIAMOND);
-        cellMap.put("monster",MONSTER);
-        cellMap.put("greenslime",GREENSLIME);
-        cellMap.put("reddoor",REDDOOR);
-        cellMap.put("bluediamond",BLUEDIAMOND);
-        cellMap.put("lava",LAVA);
-        cellMap.put("redbottle",REDBOTTLE);
-        cellMap.put("darkstar",DARKSTAR);
-        cellMap.put("yellowdoor",YELLOWDOOR);
-        cellMap.put("hero",HERO);
-        cellMap.put("skeleton",SKELETON);
-        cellMap.put("skeletonsoldier",SKELETONSOLDIER);
+    }
 
+    public void SetHeroCoor(boolean upOrDown) {
+        if(upOrDown==true){
+            for(int j=0;j<11;j++){
+                for(int k=0;k<11;k++){
+                    if (gameObjects[floorNum][j][k]!=null&&gameObjects[floorNum][j][k].type.equals("downstair")){
+                        hero.z = floorNum;
+                        hero.y = j;
+                        hero.x = k;
+                        hero.gameObjectLabel.setLocation(gameObjects[floorNum][j][k].gameObjectLabel.getLocation().x,
+                                gameObjects[floorNum][j][k].gameObjectLabel.getLocation().y);
+                    }
+                }
+            }
+
+            //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
+            if(hero.x-1>=0&&gameObjects[hero.z][hero.y][hero.x-1].type.equals("blank")){//上
+                hero.x = hero.x-1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x ,hero.gameObjectLabel.getLocation().y-34);
+
+
+            }else if(hero.x+1<=10&&gameObjects[hero.z][hero.y][hero.x+1].type.equals("blank")){//下
+
+                hero.x = hero.x+1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y+34);
+
+            }else if(hero.y-1>=0&&gameObjects[hero.z][hero.y-1][hero.x].type.equals("blank")){//左
+                hero.y = hero.y-1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,
+                        hero.gameObjectLabel.getLocation().y);
+            }else{//右
+                hero.y = hero.y+1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,
+                        hero.gameObjectLabel.getLocation().y);
+            }
+
+
+
+
+        }
+        else {
+
+            for(int j=0;j<11;j++){
+                for(int k=0;k<11;k++){
+                    if (null!=gameObjects[floorNum][j][k]&&gameObjects[floorNum][j][k].type.equals("upstair")){
+                        hero.z = floorNum;
+                        hero.y = j;
+                        hero.x = k;
+                        hero.gameObjectLabel.setLocation(gameObjects[floorNum][j][k].gameObjectLabel.getLocation().x,
+                                gameObjects[floorNum][j][k].gameObjectLabel.getLocation().y);
+                    }
+                }
+            }
+
+            //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
+            if(hero.x-1>=0&&gameObjects[hero.z][hero.y][hero.x-1].type.equals("blank")){//上
+                hero.x = hero.x-1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x ,hero.gameObjectLabel.getLocation().y-34);
+
+
+            }else if(hero.x+1<=10&&gameObjects[hero.z][hero.y][hero.x+1].type.equals("blank")){//下
+                hero.x = hero.x+1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y+34);
+
+            }else if(hero.y-1>=0&&gameObjects[hero.z][hero.y-1][hero.x].type.equals("blank")){//左
+                hero.y = hero.y-1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,
+                        hero.gameObjectLabel.getLocation().y);
+            }else{//右
+                hero.y = hero.y+1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,
+                        hero.gameObjectLabel.getLocation().y);
+            }
+
+
+
+        }
     }
 
 
 
-    private void setBottom(){
+    public void setBottom(){
         //设置bottom
         bottom.setLocation(200,-55);
         ImageIcon bottomIcon = new ImageIcon("src/imageResource/BlankBg.png");
@@ -162,7 +190,7 @@ public class GameUI{
 
     }
 
-    private void setBgLael() {
+    public void setBgLabel() {
         //只设置bgLabel
         bgLabel.setLocation(0,0);
         ImageIcon bgIcon = new ImageIcon("src/imageResource/GameBg.png");
@@ -176,7 +204,7 @@ public class GameUI{
     public void setAttributeLabels() {
         int[]yCoor = new int[]{-85,-55,-30,-5,25,50,90,125,155};
 
-        for (int i=0;i<hero.getClass().getDeclaredFields().length-4;i++){
+        for (int i=0;i<hero.getClass().getDeclaredFields().length;i++){
             JLabel attributeLabel = new JLabel();
             attributeLabel.setLocation(100,yCoor[i]);
             attributeLabel.setSize(200,300);
@@ -212,7 +240,96 @@ public class GameUI{
                 }else if(s.startsWith("#")){
                     continue;
                 }
-                floor[i][j][k] = cellMap.get(line);
+
+                if (monsterNameSet.contains(line)){
+                    Monster monster = new Monster();
+                    try{
+                        Constructor<?> constructor = Class.forName("GameObject.Characters.Enemy." + StringUtils.capitalize(line)).getConstructor();
+                        monster = (Monster) constructor.newInstance();
+                        monster.type = line;
+                        monster.x = k;
+                        monster.y = j;
+                        monster.z = i;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    gameObjects[i][j][k] = monster;//todo
+
+                }
+                else if(line.contains("key")){
+                    Key key = new Key();
+                    try{
+                        Constructor<?> constructor = Class.forName("GameObject.Matter.Item.Key." + StringUtils.capitalize(line)).getConstructor();
+                        key = (Key) constructor.newInstance();
+                        key.type = line;
+                        key.x = k;
+                        key.y = j;
+                        key.z = i;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    gameObjects[i][j][k] = key;//todo
+                }
+                else if(line.contains("bottle")){
+                    Bottle bottle = new Bottle();
+                    try{
+                        Constructor<?> constructor = Class.forName("GameObject.Matter.Item.Bottle." + StringUtils.capitalize(line)).getConstructor();
+                        bottle = (Bottle) constructor.newInstance();
+                        bottle.type = line;
+                        bottle.x = k;
+                        bottle.y = j;
+                        bottle.z = i;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    gameObjects[i][j][k] = bottle;//todo
+                }
+
+                else if(line.contains("diamond")){
+                    Diamond diamond = new Diamond();
+                    try{
+                        Constructor<?> constructor = Class.forName("GameObject.Matter.Item.Diamond." + StringUtils.capitalize(line)).getConstructor();
+                        diamond = (Diamond) constructor.newInstance();
+                        diamond.type = line;
+                        diamond.x = k;
+                        diamond.y = j;
+                        diamond.z = i;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    gameObjects[i][j][k] = diamond;//todo
+                }
+                else if(line.contains("firstgreedy")){
+                    Firstgreedy firstgreedy = new Firstgreedy();
+                    try{
+                        Constructor<?> constructor = Class.forName("GameObject.Characters.SpecialChar." + StringUtils.capitalize(line)).getConstructor();
+                        firstgreedy = (Firstgreedy) constructor.newInstance();
+                        firstgreedy.type = line;
+                        firstgreedy.x = k;
+                        firstgreedy.y = j;
+                        firstgreedy.z = i;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    gameObjects[i][j][k] = firstgreedy;//todo
+                }
+
+
+                else {
+                    GameObject gameObject = new GameObject();
+                    gameObject.type = line;
+                    gameObject.x = k;
+                    gameObject.y = j;
+                    gameObject.z = i;
+                    gameObjects[i][j][k] = gameObject;//todo
+                }
+
+
                 k=k+1;
                 if(k==11){
                     j=j+1;
@@ -232,186 +349,14 @@ public class GameUI{
 
 
 
-        //第一层
-//        floor[0][0][0] = CELL;
-//        floor[0][0][1] = CELL;
-//        floor[0][0][2] = CELL;
-//        floor[0][0][3] = CELL;
-//        floor[0][0][4] = CELL;
-//        floor[0][0][5] = CELL;
-//        floor[0][0][6] = CELL;
-//        floor[0][0][7] = CELL;
-//
-//        floor[0][10][0] = CELL;
-//        floor[0][10][1] = CELL;
-//        floor[0][10][2] = CELL;
-//        floor[0][10][3] = CELL;
-//        floor[0][10][4] = CELL;
-//        floor[0][10][5] = CELL;
-//        floor[0][10][6] = CELL;
-//        floor[0][10][7] = CELL;
-//
-//        floor[0][4][0] = CELL;
-//        floor[0][4][1] = CELL;
-//        floor[0][4][2] = CELL;
-//        floor[0][4][3] = CELL;
-//        floor[0][4][4] = CELL;
-//        floor[0][4][5] = CELL;
-//        floor[0][4][6] = CELL;
-//        floor[0][4][7] = CELL;
-//
-//        floor[0][6][0] = CELL;
-//        floor[0][6][1] = CELL;
-//        floor[0][6][2] = CELL;
-//        floor[0][6][3] = CELL;
-//        floor[0][6][4] = CELL;
-//        floor[0][6][5] = CELL;
-//        floor[0][6][6] = CELL;
-//        floor[0][6][7] = CELL;
-//
-//        floor[0][0][7] = CELL;
-//        floor[0][1][7] = CELL;
-//        floor[0][2][7] = CELL;
-//        floor[0][3][7] = CELL;
-//        floor[0][4][7] = CELL;
-//        floor[0][5][7] = YELLOWDOOR;
-//        floor[0][6][7] = CELL;
-//        floor[0][7][7] = CELL;
-//        floor[0][8][7] = CELL;
-//        floor[0][9][7] = CELL;
-//        floor[0][10][7] = CELL;
-//
-//        floor[0][1][6] = CELL;
-//        floor[0][1][8] = CELL;
-//
-//        floor[0][9][6] = CELL;
-//        floor[0][9][8] = CELL;
-//
-//        floor[0][3][8] = CELL;
-//        floor[0][7][8] = CELL;
-//
-//
-//        floor[0][5][9] = HERO;
-//        floor[0][4][8] = CELESTIAL;
-//
-//
-//
-//        floor[0][0][9] = LAVA;
-//        floor[0][1][9] = LAVA;
-//        floor[0][2][9] = LAVA;
-//        floor[0][3][9] = LAVA;
-//        floor[0][4][9] = LAVA;
-//
-//
-//        floor[0][0][10] = LAVA;
-//        floor[0][1][10] = LAVA;
-//        floor[0][2][10] = LAVA;
-//        floor[0][3][10] = LAVA;
-//        floor[0][4][10] = LAVA;
-//
-//        floor[0][6][9] = LAVA;
-//        floor[0][7][9] = LAVA;
-//        floor[0][8][9] = LAVA;
-//        floor[0][9][9] = LAVA;
-//        floor[0][10][9] = LAVA;
-//
-//
-//        floor[0][6][10] = LAVA;
-//        floor[0][7][10] = LAVA;
-//        floor[0][8][10] = LAVA;
-//        floor[0][9][10] = LAVA;
-//        floor[0][10][10] = LAVA;
-//
-//        floor[0][0][8] = LAVA;
-//        floor[0][2][8] = LAVA;
-//
-//        floor[0][8][8] = LAVA;
-//        floor[0][10][8] = LAVA;
-//
-//        floor[0][1][0] = DARKSTAR;
-//        floor[0][1][1] = DARKSTAR;
-//        floor[0][1][2] = DARKSTAR;
-//        floor[0][1][3] = DARKSTAR;
-//        floor[0][1][4] = DARKSTAR;
-//        floor[0][1][5] = DARKSTAR;
-//
-//        floor[0][2][0] = DARKSTAR;
-//        floor[0][2][1] = DARKSTAR;
-//        floor[0][2][2] = DARKSTAR;
-//        floor[0][2][3] = DARKSTAR;
-//        floor[0][2][4] = DARKSTAR;
-//        floor[0][2][5] = DARKSTAR;
-//        floor[0][2][6] = DARKSTAR;
-//
-//        floor[0][3][0] = DARKSTAR;
-//        floor[0][3][1] = DARKSTAR;
-//        floor[0][3][2] = DARKSTAR;
-//        floor[0][3][3] = DARKSTAR;
-//        floor[0][3][4] = DARKSTAR;
-//        floor[0][3][5] = DARKSTAR;
-//        floor[0][3][6] = DARKSTAR;
-//
-//        floor[0][9][0] = DARKSTAR;
-//        floor[0][9][1] = DARKSTAR;
-//        floor[0][9][2] = DARKSTAR;
-//        floor[0][9][3] = DARKSTAR;
-//        floor[0][9][4] = DARKSTAR;
-//        floor[0][9][5] = DARKSTAR;
-//
-//        floor[0][8][0] = DARKSTAR;
-//        floor[0][8][1] = DARKSTAR;
-//        floor[0][8][2] = DARKSTAR;
-//        floor[0][8][3] = DARKSTAR;
-//        floor[0][8][4] = DARKSTAR;
-//        floor[0][8][5] = DARKSTAR;
-//        floor[0][8][6] = DARKSTAR;
-//
-//        floor[0][7][0] = DARKSTAR;
-//        floor[0][7][1] = DARKSTAR;
-//        floor[0][7][2] = DARKSTAR;
-//        floor[0][7][3] = DARKSTAR;
-//        floor[0][7][4] = DARKSTAR;
-//        floor[0][7][5] = DARKSTAR;
-//        floor[0][7][6] = DARKSTAR;
-//
-//        floor[0][5][0] = UPSTAIR;
-//
-//
-//
-//
-//
-//        floor[1][5][10] = DOWNSTAIR;
-//
-//        floor[1][3][1] = CELL;
-//        floor[1][3][2] = CELL;
-//        floor[1][3][3] = CELL;
-//        floor[1][3][4] = CELL;
-//        floor[1][3][5] = CELL;
-//        floor[1][3][6] = CELL;
-//        floor[1][3][7] = CELL;
-//        floor[1][3][8] = CELL;
-//        floor[1][3][9] = CELL;
-//        floor[1][3][10] = CELL;
-//
-//        floor[1][0][1] = CELL;
-//        floor[1][1][1] = CELL;
-//        floor[1][2][1] = CELL;
-//        floor[1][3][1] = CELL;
-//        floor[1][4][1] = CELL;
-//        floor[1][5][1] = CELL;
-//        floor[1][6][1] = CELL;
-//        floor[1][7][1] = CELL;
-//        floor[1][8][1] = CELL;
-//        floor[1][9][1] = CELL;
-
 
 
     }
 
 
 
-    private void updateStatus() {
-        for (int i=0;i<hero.getClass().getDeclaredFields().length-4;i++){
+    public void updateStatus() {
+        for (int i=0;i<hero.getClass().getDeclaredFields().length;i++){
             try{
                 attributeLabels[i].setText(""+hero.getClass().getDeclaredFields()[i].getInt(hero));
             }catch (Exception e){
@@ -424,401 +369,70 @@ public class GameUI{
     }
 
 
-
-    private void addComponent2Floor(){
-        bottom.add(hero.heroLabel);
+    public void addComponent2Floor(){
+        bottom.add(hero.gameObjectLabel);
         //todo
-//        bottom.add(celestial.celestialLabel);
-
         for(int i=0;i<21;i++){//楼层
             for(int j=0;j<11;j++){//j==y
                 for(int k=0;k<11;k++){//i==x
-                    if(celestials[i][j][k]!=null){
-                        bottom.add(celestials[i][j][k].celestialLabel);
+                    if(gameObjects[i][j][k]!=null){
+                        bottom.add(gameObjects[i][j][k].gameObjectLabel);
                     }
                 }
             }
         }
-
-
-        for (WallCell wallCell : wallCells) {
-            bottom.add(wallCell.wcLabel);
-        }
-
-        for(int i=0;i<21;i++){//楼层
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(yellowDoors[i][j][k]!=null){
-                        bottom.add(yellowDoors[i][j][k].yellowDoorLabel);
-                    }
-                }
-            }
-        }
-
-        for(int i=0;i<21;i++){//楼层
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(redDoors[i][j][k]!=null){
-                        bottom.add(redDoors[i][j][k].redDoorLabel);
-                    }
-                }
-            }
-        }
-
-
-        for(int i=0;i<21;i++){//楼层
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(redKeys[i][j][k]!=null){
-                        bottom.add(redKeys[i][j][k].redKeyLabel);
-                    }
-                }
-            }
-        }
-
-
-
-
-        for (Lava lava : lavas) {
-            bottom.add(lava.lavaLabel);
-        }
-        for (DarkStar darkStar : darkStars) {
-            bottom.add(darkStar.darkStarLabel);
-        }
-
-
-        for(int i=0;i<21;i++){//楼层
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(i==floorNum&&upstairs[i][j][k]!=null){
-                        bottom.add(upstairs[i][j][k].upstairLabel);
-                    }
-                }
-            }
-        }
-
-        for(int i=0;i<21;i++){//楼层
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(downStairs[i][j][k]!=null){
-                        bottom.add(downStairs[i][j][k].downstairLabel);
-                    }
-                }
-            }
-        }
-
-        for(int i=0;i<21;i++){//楼层
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(greenSlimes[i][j][k]!=null){
-                        bottom.add(greenSlimes[i][j][k].monsterLabel);
-                    }
-                }
-            }
-        }
-        for(int i=0;i<21;i++){//楼层
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(skeletons[i][j][k]!=null){
-                        bottom.add(skeletons[i][j][k].monsterLabel);
-                    }
-                }
-            }
-        }
-        for(int i=0;i<21;i++){//楼层
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(skeletonSoldiers[i][j][k]!=null){
-                        bottom.add(skeletonSoldiers[i][j][k].monsterLabel);
-                    }
-                }
-            }
-        }
-
 
     }
 
-    private void showFloor() {
-        for (WallCell wallCell : wallCells) {
-            if (wallCell.z==floorNum){
-                wallCell.wcLabel.setVisible(true);
-            }else {
-                wallCell.wcLabel.setVisible(false);
-            }
-        }
 
+    public void showFloor() {
         for(int i=0;i<21;i++){
             for(int j=0;j<11;j++){//j==y
                 for(int k=0;k<11;k++){//i==x
-                    if(yellowDoors[i][j][k]!=null){
+                    if(gameObjects[i][j][k]!=null){
                         if(i==floorNum){
-                            yellowDoors[i][j][k].yellowDoorLabel.setVisible(true);
+                            gameObjects[i][j][k].gameObjectLabel.setVisible(true);
                         }else{
-                            yellowDoors[i][j][k].yellowDoorLabel.setVisible(false);
+                            gameObjects[i][j][k].gameObjectLabel.setVisible(false);
                         }
                     }
                 }
             }
         }
 
-        for(int i=0;i<21;i++){
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(redDoors[i][j][k]!=null){
-                        if(i==floorNum){
-                            redDoors[i][j][k].redDoorLabel.setVisible(true);
-                        }else{
-                            redDoors[i][j][k].redDoorLabel.setVisible(false);
-                        }
-                    }
-                }
-            }
-        }
-
-        for(int i=0;i<21;i++){
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(redKeys[i][j][k]!=null){
-                        if(i==floorNum){
-                            redKeys[i][j][k].redKeyLabel.setVisible(true);
-                        }else{
-                            redKeys[i][j][k].redKeyLabel.setVisible(false);
-                        }
-                    }
-                }
-            }
-        }
-
-
-
-
-        for (Lava lava : lavas) {
-            if (lava.z==floorNum){
-                lava.lavaLabel.setVisible(true);
-            }else{
-                lava.lavaLabel.setVisible(false);
-            }
-        }
-        for (DarkStar darkStar : darkStars) {
-            if (darkStar.z==floorNum){
-                darkStar.darkStarLabel.setVisible(true);
-            }else {
-                darkStar.darkStarLabel.setVisible(false);
-            }
-        }
-
-
-        for(int i=0;i<21;i++){//楼层
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(upstairs[i][j][k]!=null){
-                        if(i==floorNum){
-                            upstairs[i][j][k].upstairLabel.setVisible(true);
-                        }else {
-                            upstairs[i][j][k].upstairLabel.setVisible(false);
-                        }
-
-                    }
-                }
-            }
-        }
-
-
-        for(int i=0;i<21;i++){//楼层
-            for(int j=0;j<11;j++){//j==y
-                for(int k=0;k<11;k++){//i==x
-                    if(downStairs[i][j][k]!=null){
-                        downStairs[i][j][k].downstairLabel.setVisible(i==floorNum);
-                    }
-                    if(celestials[i][j][k]!=null){
-                        celestials[i][j][k].celestialLabel.setVisible(i==floorNum);
-                    }
-                    if(skeletons[i][j][k]!=null){
-                        skeletons[i][j][k].monsterLabel.setVisible(i==floorNum);
-                    }
-                    if(skeletonSoldiers[i][j][k]!=null){
-                        skeletonSoldiers[i][j][k].monsterLabel.setVisible(i==floorNum);
-                    }
-                }
-            }
-        }
-
-
-
-
-
-        hero.heroLabel.setVisible(true);
+        hero.gameObjectLabel.setVisible(true);
 
     }
 
-    private void setCells() {
+
+    public void setCells() {
         for(int i=0;i<21;i++){
             for(int j=0;j<11;j++){
                 for(int k=0;k<11;k++){
-                    JLabel cellLabel = new JLabel();
-                    cellLabel.setSize(34,34);
-                    cellLabel.setLocation(34*j,94+34*k);
+                    if (null!=gameObjects[i][j][k]){
 
-                    if (floor[i][j][k]==CELL){
-                        ImageIcon wallIcon = new ImageIcon("src/imageResource/Cell/1.png");
-                        wallIcon.setImage(wallIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(wallIcon);
+                        JLabel gameObjectLabel = new JLabel();
+                        gameObjectLabel.setSize(34,34);
+                        gameObjectLabel.setLocation(34*j,94+34*k);
 
-                        WallCell wallCell = new WallCell();
-                        wallCell.z = i;
-                        wallCell.y = j;
-                        wallCell.x = k;
-                        wallCell.wcLabel = cellLabel;
-                        wallCells.add(wallCell);
-                    }else if(floor[i][j][k]==CELESTIAL){
-                        ImageIcon celestialIcon = new ImageIcon("src/imageResource/Celestial/1.png");
-                        celestialIcon.setImage(celestialIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(celestialIcon);
+                        ImageIcon gameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
+                        gameObjectIcon.setImage(gameObjectIcon.getImage().getScaledInstance(34,34,1));
+                        gameObjectLabel.setIcon(gameObjectIcon);
+                        if (gameObjects[i][j][k].type.equals("hero")){
+                            hero.z = i;
+                            hero.y = j;
+                            hero.x = k;
+                            hero.gameObjectLabel = gameObjectLabel;
+                        }
 
-                        Celestial celestial = new Celestial();
-                        celestial.z = i;
-                        celestial.y = j;
-                        celestial.x = k;
-                        celestial.celestialLabel = cellLabel;
-                        celestials[i][j][k]=celestial;
-
-                    }else if(floor[i][j][k]==GREENSLIME){
-                        ImageIcon greenSlimeIcon = new ImageIcon("src/imageResource/Monster/greenSlime.png");
-                        greenSlimeIcon.setImage(greenSlimeIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(greenSlimeIcon);
-                        GreenSlime greenSlime = new GreenSlime();
-                        greenSlime.z = i;
-                        greenSlime.y = j;
-                        greenSlime.x = k;
-                        greenSlime.life = 50;
-                        greenSlime.attack = 20;
-                        greenSlime.defence = 1;
-                        greenSlime.coin = 1;
-                        greenSlime.experience = 1;
-                        greenSlime.monsterLabel = cellLabel;
-                        greenSlimes[i][j][k]=greenSlime;
-
-                    }else if(floor[i][j][k]==YELLOWDOOR){
-                        ImageIcon yellowDoorIcon = new ImageIcon("src/imageResource/Cell/Door/1.png");
-                        yellowDoorIcon.setImage(yellowDoorIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(yellowDoorIcon);
-                        YellowDoor yellowDoor = new YellowDoor();
-                        yellowDoor.z = i;
-                        yellowDoor.y = j;
-                        yellowDoor.x = k;
-                        yellowDoor.yellowDoorLabel = cellLabel;
-                        yellowDoors[i][j][k]=yellowDoor;
-                    }else if(floor[i][j][k]==HERO){
-                        ImageIcon heroIcon = new ImageIcon("src/imageResource/Hero/1.png");
-                        heroIcon.setImage(heroIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(heroIcon);
-                        hero.heroLabel = cellLabel;
-                        hero.x = k;
-                        hero.y = j;
-                        hero.z = i;
-                    }else if(floor[i][j][k]==LAVA){
-                        ImageIcon lavaIcon = new ImageIcon("src/imageResource/Cell/Door/19.png");
-                        lavaIcon.setImage(lavaIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(lavaIcon);
-                        Lava lava = new Lava();
-                        lava.z = i;
-                        lava.y = j;
-                        lava.x = k;
-                        lava.lavaLabel = cellLabel;
-                        lavas.add(lava);
-
-                    }else if(floor[i][j][k]==DARKSTAR){
-                        ImageIcon lavaIcon = new ImageIcon("src/imageResource/Cell/Door/20.png");
-                        lavaIcon.setImage(lavaIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(lavaIcon);
-                        DarkStar darkStar = new DarkStar();
-                        darkStar.z = i;
-                        darkStar.y = j;
-                        darkStar.x = k;
-                        darkStar.darkStarLabel = cellLabel;
-                        darkStars.add(darkStar);
-
-                    }else if(floor[i][j][k]==UPSTAIR){
-                        ImageIcon upstairIcon = new ImageIcon("src/imageResource/Cell/Stairs/1.png");
-                        upstairIcon.setImage(upstairIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(upstairIcon);
-                        Upstair upstair = new Upstair();
-
-                        upstair.z = i;
-                        upstair.y = j;
-                        upstair.x = k;
-                        upstair.upstairLabel = cellLabel;
-                        upstairs[i][j][k]=upstair;
-                    }else if(floor[i][j][k]==DOWNSTAIR){
-                        ImageIcon downIcon = new ImageIcon("src/imageResource/Cell/Stairs/2.png");
-                        downIcon.setImage(downIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(downIcon);
-                        DownStair downStair = new DownStair();
-
-                        downStair.z = i;
-                        downStair.y = j;
-                        downStair.x = k;
-                        downStair.downstairLabel = cellLabel;
-                        downStairs[i][j][k]=downStair;
-                    }else if(floor[i][j][k]==REDDOOR){
-                        ImageIcon redDoorIcon = new ImageIcon("src/imageResource/Cell/Door/4.png");
-                        redDoorIcon.setImage(redDoorIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(redDoorIcon);
-                        RedDoor redDoor = new RedDoor();
-
-                        redDoor.z = i;
-                        redDoor.y = j;
-                        redDoor.x = k;
-                        redDoor.redDoorLabel = cellLabel;
-                        redDoors[i][j][k]=redDoor;
-                    }else if(floor[i][j][k]==REDKEY){
-                        ImageIcon redKeyIcon = new ImageIcon("src/imageResource/Cell/Key/8.png");
-                        redKeyIcon.setImage(redKeyIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(redKeyIcon);
-                        RedKey redKey = new RedKey();
-
-                        redKey.z = i;
-                        redKey.y = j;
-                        redKey.x = k;
-                        redKey.redKeyLabel = cellLabel;
-                        redKeys[i][j][k]=redKey;
-                    }else if(floor[i][j][k]==SKELETON){
-                        ImageIcon skeletonIcon = new ImageIcon("src/imageResource/Monster/skeleton.png");
-                        skeletonIcon.setImage(skeletonIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(skeletonIcon);
-                        Skeleton skeleton = new Skeleton();
-
-
-                        skeleton.z = i;
-                        skeleton.y = j;
-                        skeleton.x = k;
-                        skeleton.life = 110;
-                        skeleton.attack = 25;
-                        skeleton.defence = 5;
-                        skeleton.coin = 5;
-                        skeleton.experience = 4;
-                        skeleton.monsterLabel = cellLabel;
-                        skeletons[i][j][k]=skeleton;
-
-                    }else if(floor[i][j][k]==SKELETONSOLDIER){
-                        ImageIcon skeletonSoldierIcon = new ImageIcon("src/imageResource/Monster/skeletonSoldier.png");
-                        skeletonSoldierIcon.setImage(skeletonSoldierIcon.getImage().getScaledInstance(34,34,1));
-                        cellLabel.setIcon(skeletonSoldierIcon);
-                        SkeletonSoldier skeletonSoldier = new SkeletonSoldier();
-
-
-                        skeletonSoldier.z = i;
-                        skeletonSoldier.y = j;
-                        skeletonSoldier.x = k;
-                        skeletonSoldier.life = 150;
-                        skeletonSoldier.attack = 40;
-                        skeletonSoldier.defence = 20;
-                        skeletonSoldier.coin = 8;
-                        skeletonSoldier.experience = 6;
-                        skeletonSoldier.monsterLabel = cellLabel;
-                        skeletonSoldiers[i][j][k]=skeletonSoldier;
+                        gameObjects[i][j][k].gameObjectLabel=gameObjectLabel;
 
                     }
+                    else {
+                        continue;
+                    }
+
+
 
                 }
             }
@@ -827,8 +441,7 @@ public class GameUI{
     }
 
 
-
-    private void setGameFrame() {
+    public void setGameFrame() {
         gameFrame.setVisible(true);
         gameFrame.setSize(820,600);
         gamePanel.setLocation(0,0);
@@ -852,8 +465,8 @@ public class GameUI{
         });
     }
 
-    private void heroDoAction(KeyEvent e) {
-        hero.heroLabel.setVisible(false);
+    public void heroDoAction(KeyEvent e) {
+//        hero.gameObjectLabel.setVisible(false);
         if (e.getKeyCode()==KeyEvent.VK_UP){
             heroGoUp();
         }
@@ -869,7 +482,7 @@ public class GameUI{
         else{
             System.out.println("is not ready!");
         }
-        hero.heroLabel.setVisible(true);
+//        hero.gameObjectLabel.setVisible(true);
         reLoadGameFrame();
     }
 
@@ -881,143 +494,197 @@ public class GameUI{
         updateFloorLabel();
     }
 
-    private void updateFloorLabel() {
+    public void updateFloorLabel() {
         floorLabel.setText(""+floorNum);
     }
 
-    private void heroGoRight() {
+
+    public void heroGoRight() {
+        LeftORRight = -1;
         hero.y = hero.y+1;
         if(hero.y<=10){
-            if(floor[hero.z][hero.y][hero.x]==BLANK){//空白格子，允许站上去
-                //修改英雄标签所在的位置
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x+34,hero.heroLabel.getLocation().y);
-                //英雄现在站立的地方变成英雄的坐标
-                floor[hero.z][hero.y][hero.x]=HERO;
-                //英雄原本站立的地方变成空地
-                floor[hero.z][hero.y-1][hero.x]=BLANK;
-
-            }else if(floor[hero.z][hero.y][hero.x]==YELLOWDOOR){//黄门，允许开门
-                if (hero.yellowKey>=1){//黄钥匙够
-                    System.out.println("踩到黄门");
-                    hero.yellowKey = hero.yellowKey-1;//黄钥匙数量-1
-                    //黄门的标签直接设置为不可见
-                    bottom.remove(yellowDoors[hero.z][hero.y][hero.x].yellowDoorLabel);
-                    //修改英雄标签所在的位置
-                    hero.heroLabel.setLocation(hero.heroLabel.getLocation().x+34,hero.heroLabel.getLocation().y);
-                    //英雄现在站立的地方变成英雄的坐标
-                    floor[hero.z][hero.y][hero.x]=HERO;
-                    //英雄原本站立的地方变成空地
-                    floor[hero.z][hero.y-1][hero.x]=BLANK;
-                }else{
-                    hero.y = hero.y-1;
-                }
-
-
-            }else {
-                hero.y = hero.y-1;
-            }
+            heroMove(gameObjects[hero.z][hero.y][hero.x].type);
+//            if(gameObjects[hero.z][hero.y][hero.x].type.equals("blank")){//空白格子，允许站上去
+//                //修改英雄标签所在的位置
+//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,hero.gameObjectLabel.getLocation().y);
+//                //英雄现在站立的地方变成英雄的坐标
+//                gameObjects[hero.z][hero.y][hero.x].type="hero";
+//                //英雄原本站立的地方变成空地
+//                gameObjects[hero.z][hero.y-1][hero.x].type="blank";
+//
+//            }else if(gameObjects[hero.z][hero.y][hero.x].type.equals("yellowdoor")){//黄门，允许开门
+//                if (hero.yellowKey>=1){//黄钥匙够
+//                    System.out.println("踩到黄门");
+//                    hero.yellowKey = hero.yellowKey-1;//黄钥匙数量-1
+//                    //黄门的标签直接设置为不可见
+//                    bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    //修改英雄标签所在的位置
+//                    hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,hero.gameObjectLabel.getLocation().y);
+//                    //英雄现在站立的地方变成英雄的坐标
+//                    gameObjects[hero.z][hero.y][hero.x].type="hero";
+//                    //英雄原本站立的地方变成空地
+//                    gameObjects[hero.z][hero.y-1][hero.x].type="blank";
+//                }else{
+//                    hero.y = hero.y-1;
+//                }
+//
+//
+//            }else {
+//                hero.y = hero.y-1;
+//            }
         }else{
             hero.y = hero.y-1;
         }
+        LeftORRight = 0;
+
     }
 
-    private void heroGoLeft() {
+    public void heroGoLeft() {
         hero.y = hero.y-1;
+        LeftORRight = 1;
         if(hero.y>=0){
-            if(floor[hero.z][hero.y][hero.x]==BLANK){
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x-34,hero.heroLabel.getLocation().y);
-                floor[hero.z][hero.y][hero.x]=HERO;
-                floor[hero.z][hero.y+1][hero.x]=0;
-
-            }else if (floor[hero.z][hero.y][hero.x]==REDKEY){//踩到红钥匙
-                System.out.println("得到红钥匙");
-                hero.redKey = hero.redKey+1;//黄钥匙数量-1
-                //红钥匙的标签直接设置为空
-                bottom.remove(redKeys[hero.z][hero.y][hero.x].redKeyLabel);
-//                    yellowDoors[hero.z][hero.y][hero.x]=null;
-                //修改英雄标签所在的位置
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x-34,hero.heroLabel.getLocation().y);
-                //英雄现在站立的地方变成英雄的坐标
-                floor[hero.z][hero.y][hero.x]=HERO;
-                //英雄原本站立的地方变成空地
-                floor[hero.z][hero.y+1][hero.x]=BLANK;
-
-
-            }else if(floor[hero.z][hero.y][hero.x]==YELLOWDOOR){//黄门，允许开门
-                if (hero.yellowKey>=1){//黄钥匙够
-                    System.out.println("踩到黄门");
-                    hero.yellowKey = hero.yellowKey-1;//黄钥匙数量-1
-                    //黄门的标签直接设置为不可见
-                    bottom.remove(yellowDoors[hero.z][hero.y][hero.x].yellowDoorLabel);
-                    //修改英雄标签所在的位置
-                    hero.heroLabel.setLocation(hero.heroLabel.getLocation().x-34,hero.heroLabel.getLocation().y);
-                    //英雄现在站立的地方变成英雄的坐标
-                    floor[hero.z][hero.y][hero.x]=HERO;
-                    //英雄原本站立的地方变成空地
-                    floor[hero.z][hero.y+1][hero.x]=BLANK;
-                }else{
-                    hero.y = hero.y+1;
-                }
-
-
-            }else if(floor[hero.z][hero.y][hero.x]==UPSTAIR){//上楼
-                System.out.println("上楼");
-                //楼层数+1
-                floorNum = floorNum+1;
-                //原本站立的地方变成空地
-                floor[hero.z][hero.y+1][hero.x]=BLANK;
-                //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
-                SetHeroCoor(true);//此方法寻找上一层的downStairs的在floor上的坐标然后选取一个可以站立的位置赋值给hero
-                //将英雄的现在的位置在floor里面设置值
-                floor[hero.z][hero.y][hero.x]=HERO;
-                //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
-                //
-
-
-            }else if(floor[hero.z][hero.y][hero.x]==GREENSLIME){//遇到绿色史莱姆
-                System.out.println("遇到绿色史莱姆");
-                //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
-                boolean fightingResult = fight(greenSlimes[hero.z][hero.y][hero.x]);
-                if (fightingResult){//打得过
-                    //史莱姆的标签直接从bottom当中剔除
-                    bottom.remove(greenSlimes[hero.z][hero.y][hero.x].monsterLabel);
-                    //修改英雄标签所在的位置
-                    hero.heroLabel.setLocation(hero.heroLabel.getLocation().x-34,hero.heroLabel.getLocation().y);
-                    //英雄现在站立的地方变成英雄的坐标
-                    floor[hero.z][hero.y][hero.x]=HERO;
-                    //原本站立的地方变成空地
-                    floor[hero.z][hero.y+1][hero.x]=BLANK;
-
-
-                }else{//打不过
-                    hero.y = hero.y+1;
-                }
-
-
-            }else{
-                hero.y = hero.y+1;
-            }
+            heroMove(gameObjects[hero.z][hero.y][hero.x].type);
+//            if(gameObjects[hero.z][hero.y][hero.x].type.equals("blank")){
+//                heroMove("blank");
+//            }
+//            else if (gameObjects[hero.z][hero.y][hero.x].type.equals("redkey")){//踩到红钥匙
+//                heroMove("redkey");
+////                System.out.println("得到红钥匙");
+////                hero.redKey = hero.redKey+1;//
+////                //红钥匙的标签直接设置为空
+////                bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//////                    yellowDoors[hero.z][hero.y][hero.x]=null;
+////                //修改英雄标签所在的位置
+////                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
+////                //英雄现在站立的地方变成英雄的坐标
+////                gameObjects[hero.z][hero.y][hero.x].type="hero";
+////                //英雄原本站立的地方变成空地
+////                gameObjects[hero.z][hero.y+1][hero.x].type="blank";
+//            }
+//            else if (gameObjects[hero.z][hero.y][hero.x].type.equals("yellowkey")){//踩到黄钥匙
+//                heroMove("yellowkey");
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("yellowdoor")){//黄门，允许开门
+//                heroMove("yellowdoor");
+////                if (hero.yellowKey>=1){//黄钥匙够
+////                    System.out.println("踩到黄门");
+////                    hero.yellowKey = hero.yellowKey-1;//黄钥匙数量-1
+////                    //黄门的标签直接设置为不可见
+////                    bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+////                    //修改英雄标签所在的位置
+////                    hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
+////                    //英雄现在站立的地方变成英雄的坐标
+////                    gameObjects[hero.z][hero.y][hero.x].type="hero";
+////                    //英雄原本站立的地方变成空地
+////                    gameObjects[hero.z][hero.y+1][hero.x].type="blank";
+////                }else{
+////                    hero.y = hero.y+1;
+////                }
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("upstair")){//上楼
+//                heroMove("upstair");
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("greenslime")){//遇到绿色史莱姆
+//                heroMove("greenslime");
+////                System.out.println("遇到绿色史莱姆");
+////                //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
+////                boolean fightingResult = fight((Monster) gameObjects[hero.z][hero.y][hero.x]);
+////                if (fightingResult){//打得过
+////                    //史莱姆的标签直接从bottom当中剔除
+////                    bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+////                    //修改英雄标签所在的位置
+////                    hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
+////                    //英雄现在站立的地方变成英雄的坐标
+////                    gameObjects[hero.z][hero.y][hero.x].type="hero";
+////                    //原本站立的地方变成空地
+////                    gameObjects[hero.z][hero.y+1][hero.x].type="blank";
+////
+////
+////                }else{//打不过
+////                    hero.y = hero.y+1;
+////                }
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("skeleton")){//遇到骷髅人
+//                heroMove("skeleton");
+////                System.out.println("遇到骷髅人");
+////                //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
+////                boolean fightingResult = fight((Monster) gameObjects[hero.z][hero.y][hero.x]);
+////                if (fightingResult){//打得过
+////                    //史莱姆的标签直接从bottom当中剔除
+////                    bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+////                    //修改英雄标签所在的位置
+////                    hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
+////                    //英雄现在站立的地方变成英雄的坐标
+////                    gameObjects[hero.z][hero.y][hero.x].type="hero";
+////                    //原本站立的地方变成空地
+////                    gameObjects[hero.z][hero.y+1][hero.x].type="blank";
+////
+////
+////                }else{//打不过
+////                    hero.y = hero.y+1;
+////                }
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("downstair")){
+//                heroMove("downstair");
+//            }
+//
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("redslime")){//遇到红色史莱姆
+//                System.out.println("遇到红色史莱姆");
+//                //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
+//                boolean fightingResult = fight((Monster) gameObjects[hero.z][hero.y][hero.x]);
+//                if (fightingResult){//打得过
+//                    //史莱姆的标签直接从bottom当中剔除
+//                    bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    //修改英雄标签所在的位置
+//                    hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
+//                    //英雄现在站立的地方变成英雄的坐标
+//                    gameObjects[hero.z][hero.y][hero.x].type="hero";
+//                    //原本站立的地方变成空地
+//                    gameObjects[hero.z][hero.y+1][hero.x].type="blank";
+//
+//
+//                }else{//打不过
+//                    hero.y = hero.y+1;
+//                }
+//
+//
+//            }
+//            else{
+//                hero.y = hero.y+1;
+//            }
         }else{
             hero.y = hero.y+1;
         }
+        LeftORRight = 0;
+
     }
 
-    private boolean fight(Monster monster) {
-        Hero simulateHero = hero;//模拟的英雄的数据
-        Monster simulateMonster = monster;
+
+    public boolean fight(Monster monster) {
+        Hero simulateHero = new Hero() ;//模拟的英雄的数据
+        simulateHero.attack =  hero.attack;
+        simulateHero.defence = hero.defence;
+        simulateHero.life = hero.life;
+
+        Monster simulateMonster = new Monster();
+        simulateMonster.attack = monster.attack;
+        simulateMonster.defence = monster.defence;
+        simulateMonster.life = monster.life;
+
+
         if(simulateMonster.defence>=simulateHero.attack){
             return false;
         }
         while (simulateMonster.life>0){//怪物的生命值不为0的时候
-            //todo
-            //改成深拷贝，simulate对象的每一个属性都要赋值
-            //英雄砍怪物一刀
-            simulateMonster.life = simulateHero.attack-simulateMonster.defence;
             //怪物砍英雄一刀
-            simulateHero.life = simulateMonster.attack-simulateHero.defence;
+            simulateHero.life =simulateHero.life-(simulateMonster.attack-simulateHero.defence);
+
+            //英雄砍怪物一刀
+            simulateMonster.life = simulateMonster.life-(simulateHero.attack-simulateMonster.defence);
+
         }
         if(simulateHero.life>0){//能够打得赢
-            hero = simulateHero;
+            hero.life = simulateHero.life;
             hero.coin = hero.coin+monster.coin;
             hero.experience = hero.experience+monster.experience;
             return true;
@@ -1028,202 +695,354 @@ public class GameUI{
 
     }
 
-    private void heroGoDown() {
+    public void heroGoDown() {
+        UpORDown=-1;
         hero.x = hero.x+1;
         if(hero.x<=10){
-            if(floor[hero.z][hero.y][hero.x]==BLANK){
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x,hero.heroLabel.getLocation().y+34);
-                floor[hero.z][hero.y][hero.x]=HERO;
-                floor[hero.z][hero.y][hero.x-1]=0;
-
-            }else if(floor[hero.z][hero.y][hero.x]==DOWNSTAIR){//上楼
-                System.out.println("下楼");
-                //楼层数+1
-                floorNum = floorNum-1;
-                //原本站立的地方变成空地
-                floor[hero.z][hero.y][hero.x-1]=BLANK;
-                //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
-                SetHeroCoor(false);//此方法寻找上一层的downStairs的在floor上的坐标然后选取一个可以站立的位置赋值给hero
-                //将英雄的现在的位置在floor里面设置值
-                floor[hero.z][hero.y][hero.x]=HERO;
-                //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
-                //
-
-            }else if(floor[hero.z][hero.y][hero.x]==YELLOWDOOR){//黄门，允许开门
-                if (hero.yellowKey>=1){//黄钥匙够
-                    System.out.println("踩到黄门");
-                    hero.yellowKey = hero.yellowKey-1;//黄钥匙数量-1
-                    //黄门的标签直接设置为不可见
-                    bottom.remove(yellowDoors[hero.z][hero.y][hero.x].yellowDoorLabel);
-                    //修改英雄标签所在的位置
-                    hero.heroLabel.setLocation(hero.heroLabel.getLocation().x,hero.heroLabel.getLocation().y+34);
-                    //英雄现在站立的地方变成英雄的坐标
-                    floor[hero.z][hero.y][hero.x]=HERO;
-                    //英雄原本站立的地方变成空地
-                    floor[hero.z][hero.y][hero.x-1]=BLANK;
-                }else{
-                    hero.y = hero.y-1;
-                }
-
-
-            }else{
-                hero.x = hero.x-1;
-            }
+            heroMove(gameObjects[hero.z][hero.y][hero.x].type);
+//            if(gameObjects[hero.z][hero.y][hero.x].type.equals("blank")){
+//                heroMove("blank");
+//            }else if(gameObjects[hero.z][hero.y][hero.x].type.equals("downstair")){//下楼
+//                heroMove("downstair");
+//            }else if(gameObjects[hero.z][hero.y][hero.x].type.equals("upstair")){//上楼
+//                heroMove("upstair");
+//            }else if(gameObjects[hero.z][hero.y][hero.x].type.equals("yellowdoor")){//黄门，允许开门
+//                heroMove("yellowdoor");
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("reddoor")){//红门，允许开门
+//                heroMove("reddoor");
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("skeleton")){//
+//                heroMove(gameObjects[hero.z][hero.y][hero.x].type);
+//
+//            }
+//            else{
+//                hero.x = hero.x-1;
+//            }
         }else{
             hero.x = hero.x-1;
         }
+        UpORDown=0;
+
     }
 
-    private void heroGoUp() {
+    public void heroMove(String destination){
+        //destination就是目标，也就是黄门，史莱姆，墙，上下楼这些
+        if(destination.equals("blank")){//空白格子，允许站上去
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-LeftORRight*34,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type=destination;
+//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,hero.gameObjectLabel.getLocation().y);
+//                floor[hero.z][hero.y][hero.x]=HERO;
+//                floor[hero.z][hero.y+1][hero.x]=BLANK;
+        }
+        else if(hero.yellowKey>=1&&destination.equals("yellowdoor")){
+            System.out.println("踩到黄门");
+            hero.yellowKey = hero.yellowKey-1;//黄钥匙数量-1
+            //黄门的标签直接设置为空
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            //修改英雄标签所在的位置
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            //英雄现在站立的地方变成英雄的坐标
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //英雄原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+
+        }
+        else if(hero.yellowKey>=1&&destination.equals("bluedoor")){
+            System.out.println("踩到");
+            hero.blueKey = hero.blueKey-1;//黄钥匙数量-1
+            //黄门的标签直接设置为空
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            //修改英雄标签所在的位置
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            //英雄现在站立的地方变成英雄的坐标
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //英雄原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+
+        }
+        else if (hero.redKey>=1&&destination.equals("reddoor")){
+            System.out.println("踩到红门");
+            hero.redKey = hero.redKey-1;//红钥匙数量-1
+            //从bottom当中去除此红门
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            //修改英雄标签所在的位置
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            //英雄现在站立的地方变成英雄的坐标
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //英雄原本站立的地方变成空地
+            gameObjects[hero.z][hero.y][hero.x+UpORDown].type="blank";
+
+        }
+        else if (destination.equals("upstair")){
+            System.out.println("上楼");
+            //楼层数+1
+            floorNum = floorNum+1;
+            //原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";//hero.x-1
+            //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
+            SetHeroCoor(true);//此方法寻找上一层的downStairs的在floor上的坐标然后选取一个可以站立的位置赋值给hero
+            //将英雄的现在的位置在floor里面设置值
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
+        }
+        else if (destination.equals("downstair")){
+            System.out.println("下楼");
+            //楼层数-1
+            floorNum = floorNum-1;
+            //原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+            //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
+            SetHeroCoor(false);//此方法寻找上一层的downStairs的在floor上的坐标然后选取一个可以站立的位置赋值给hero
+            //将英雄的现在的位置在floor里面设置值
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
+            //
+            System.out.println("下楼");
+        }
+        else if (destination .equals("yellowkey")){
+            System.out.println("得到黄钥匙");
+            hero.yellowKey = hero.yellowKey+1;//
+            //红钥匙的标签直接设置为空
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            //修改英雄标签所在的位置
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            //英雄现在站立的地方变成英雄的坐标
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //英雄原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+        }
+        else if (destination.equals("redkey")){
+            System.out.println("得到红钥匙");
+            hero.redKey = hero.redKey+1;//
+            //红钥匙的标签直接设置为空
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            //修改英雄标签所在的位置
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            //英雄现在站立的地方变成英雄的坐标
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //英雄原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+        }
+        else if (destination.equals("bluekey")){
+            System.out.println("得到蓝钥匙");
+            hero.blueKey = hero.blueKey+1;//
+            //红钥匙的标签直接设置为空
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            //修改英雄标签所在的位置
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            //英雄现在站立的地方变成英雄的坐标
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //英雄原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+        }
+        else if (destination.equals("redbottle")){
+            System.out.println("");
+            hero.life = hero.life+((Redbottle)gameObjects[hero.z][hero.y][hero.x]).life;//
+            //红钥匙的标签直接设置为空
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            //修改英雄标签所在的位置
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            //英雄现在站立的地方变成英雄的坐标
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //英雄原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+        }
+        else if (destination.equals("bluebottle")){
+            System.out.println("");
+            hero.life = hero.life+((Bluebottle)gameObjects[hero.z][hero.y][hero.x]).life;//
+            //红钥匙的标签直接设置为空
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            //修改英雄标签所在的位置
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            //英雄现在站立的地方变成英雄的坐标
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //英雄原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+        }
+
+        else if (destination.equals("reddiamond")){
+            System.out.println("");
+            hero.attack = hero.attack+((Reddiamond)gameObjects[hero.z][hero.y][hero.x]).attack;//
+            //红钥匙的标签直接设置为空
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            //修改英雄标签所在的位置
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            //英雄现在站立的地方变成英雄的坐标
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //英雄原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+        }
+        else if (destination.equals("bluediamond")){
+            System.out.println("");
+            hero.defence = hero.defence+((Bluediamond)gameObjects[hero.z][hero.y][hero.x]).defence;//
+            //红钥匙的标签直接设置为空
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            //修改英雄标签所在的位置
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            //英雄现在站立的地方变成英雄的坐标
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //英雄原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+        }
+
+
+        else if (monsterNameSet.contains(destination)){
+            System.out.println("遇到"+destination);
+            //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
+            boolean fightingResult = fight((Monster) gameObjects[hero.z][hero.y][hero.x]);
+            if (fightingResult){//打得过
+                //史莱姆的标签直接从bottom当中剔除
+                bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+                //修改英雄标签所在的位置
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+                //英雄现在站立的地方变成英雄的坐标
+                gameObjects[hero.z][hero.y][hero.x].type="hero";
+                //原本站立的地方变成空地
+                gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+
+
+            }else{//打不过
+                hero.y = hero.y+1;
+            }
+        }
+        else if (destination.contains("greedy")){
+            //遇到商店老板或者叫贪婪之神
+            System.out.println("遇到商店老板");
+            //显示交易的界面
+            if(destination.contains("first")){
+                gamePanel.setLayout(null);
+
+                shopLabel.setSize(150,200);
+                shopLabel.setLocation(430,120);
+                shopLabel.setVisible(true);
+                shopLabel.setOpaque(true);
+                shopLabel.setBackground(Color.GRAY);
+
+                JLabel title = new JLabel();
+                title.setLayout(null);
+                title.setSize(150,40);
+                title.setLocation(0,0);
+                title.setVisible(true);
+                title.setOpaque(true);
+                title.setBackground(Color.WHITE);
+                title.setText("献祭就能更强");
+
+                JLabel lifeImprove = new JLabel();
+                lifeImprove.setLayout(null);
+                lifeImprove.setSize(150,40);
+                lifeImprove.setLocation(0,40);
+                lifeImprove.setVisible(true);
+                lifeImprove.setOpaque(true);
+
+                lifeImprove.setBackground(Color.YELLOW);
+                lifeImprove.setText("生命+800");
+
+                JLabel attackImprove = new JLabel();
+                attackImprove.setLayout(null);
+                attackImprove.setSize(150,40);
+                attackImprove.setLocation(0,80);
+                attackImprove.setVisible(true);
+                attackImprove.setOpaque(true);
+
+                attackImprove.setBackground(Color.PINK);
+                attackImprove.setText("攻击+800");
+
+                JLabel defenceImprove = new JLabel();
+                defenceImprove.setLayout(null);
+                defenceImprove.setSize(150,40);
+                defenceImprove.setLocation(0,120);
+                defenceImprove.setVisible(true);
+                defenceImprove.setOpaque(true);
+                defenceImprove.setBackground(Color.ORANGE);
+                defenceImprove.setText("防御+800");
+
+                JLabel quit = new JLabel();
+                quit.setLayout(null);
+                quit.setSize(150,40);
+                quit.setLocation(0,160);
+                quit.setVisible(true);
+                quit.setOpaque(true);
+
+                quit.setBackground(Color.CYAN);
+                quit.setText("取消");
+
+                shopLabel.add(title);
+                shopLabel.add(lifeImprove);
+                shopLabel.add(attackImprove);
+                shopLabel.add(defenceImprove);
+                shopLabel.add(quit);
+
+
+                gamePanel.add(shopLabel);
+
+//                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+//                //英雄现在站立的地方变成英雄的坐标
+//                gameObjects[hero.z][hero.y][hero.x].type="hero";
+//                //英雄原本站立的地方变成空地
+//                gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+                hero.x = hero.x+UpORDown;
+                hero.y = hero.y+LeftORRight;
+
+            }
+
+
+
+        }
+
+        else{
+            hero.x = hero.x+UpORDown;
+            hero.y = hero.y+LeftORRight;
+        }
+
+    }
+
+    public void heroGoUp() {
+        UpORDown = 1;
         hero.x = hero.x-1;
         if(hero.x>=0){
-            if(floor[hero.z][hero.y][hero.x]==BLANK){//空白格子，允许站上去
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x,hero.heroLabel.getLocation().y-34);
-
-                floor[hero.z][hero.y][hero.x]=HERO;
-                floor[hero.z][hero.y][hero.x+1]=0;
-
-            }else if(floor[hero.z][hero.y][hero.x]==YELLOWDOOR){//黄门，允许开门
-                if (hero.yellowKey>=1){//黄钥匙够
-                    System.out.println("踩到黄门");
-                    hero.yellowKey = hero.yellowKey-1;//黄钥匙数量-1
-                    //黄门的标签直接设置为空
-                    bottom.remove(yellowDoors[hero.z][hero.y][hero.x].yellowDoorLabel);
-//                    yellowDoors[hero.z][hero.y][hero.x]=null;
-                    //修改英雄标签所在的位置
-                    hero.heroLabel.setLocation(hero.heroLabel.getLocation().x,hero.heroLabel.getLocation().y-34);
-                    //英雄现在站立的地方变成英雄的坐标
-                    floor[hero.z][hero.y][hero.x]=HERO;
-                    //英雄原本站立的地方变成空地
-                    floor[hero.z][hero.y][hero.x+1]=BLANK;
-                }else{
-                    hero.x = hero.x+1;
-                }
-
-            }else if(floor[hero.z][hero.y][hero.x]==REDDOOR){//红门，允许开门
-                if (hero.redKey>=1){//红钥匙够
-                    System.out.println("踩到红门");
-                    hero.redKey = hero.redKey-1;//红钥匙数量-1
-                    //从bottom当中去除此红门
-                    bottom.remove(redDoors[hero.z][hero.y][hero.x].redDoorLabel);
-//                    yellowDoors[hero.z][hero.y][hero.x]=null;
-                    //修改英雄标签所在的位置
-                    hero.heroLabel.setLocation(hero.heroLabel.getLocation().x,hero.heroLabel.getLocation().y-34);
-                    //英雄现在站立的地方变成英雄的坐标
-                    floor[hero.z][hero.y][hero.x]=HERO;
-                    //英雄原本站立的地方变成空地
-                    floor[hero.z][hero.y][hero.x+1]=BLANK;
-                }else{
-                    hero.x = hero.x+1;
-                }
-
-            }else if(floor[hero.z][hero.y][hero.x]==UPSTAIR){//上楼
-                System.out.println("上楼");
-                //楼层数+1
-                floorNum = floorNum+1;
-                //原本站立的地方变成空地
-                floor[hero.z][hero.y][hero.x+1]=BLANK;
-                //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
-                SetHeroCoor(true);//此方法寻找上一层的downStairs的在floor上的坐标然后选取一个可以站立的位置赋值给hero
-                //将英雄的现在的位置在floor里面设置值
-                floor[hero.z][hero.y][hero.x]=HERO;
-                //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
-                //
-
-
-            }else{
-                hero.x = hero.x+1;
-            }
+            heroMove(gameObjects[hero.z][hero.y][hero.x].type);
+//            if(gameObjects[hero.z][hero.y][hero.x].type.equals("blank")){//空白格子，允许站上去
+//                heroMove("blank");
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("yellowdoor")){//黄门，允许开门
+//                heroMove("yellowdoor");
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("reddoor")){//红门，允许开门
+//                heroMove("reddoor");
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("upstair")){//上楼
+//                heroMove("upstair");
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("downstair")){//下楼
+//                heroMove("downstair");
+//            }
+//            else if(gameObjects[hero.z][hero.y][hero.x].type.equals("skeleton")){
+//                heroMove(gameObjects[hero.z][hero.y][hero.x].type);
+//            }
+//
+//            else{
+//                hero.x = hero.x+1;
+//            }
         }else{
             hero.x = hero.x+1;
         }
-
-
-
-    }
-
-
-    private void SetHeroCoor(boolean upOrDown) {
-        if(upOrDown==true){
-            for(int j=0;j<11;j++){
-                for(int k=0;k<11;k++){
-                    if (floor[floorNum][j][k]==DOWNSTAIR){
-                        hero.z = floorNum;
-                        hero.y = j;
-                        hero.x = k;
-                        hero.heroLabel.setLocation(downStairs[floorNum][j][k].downstairLabel.getLocation().x,
-                                downStairs[floorNum][j][k].downstairLabel.getLocation().y);
-                    }
-                }
-            }
-
-            //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
-            if(floor[hero.z][hero.y][hero.x-1]==BLANK){//上
-                hero.x = hero.x-1;
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x ,hero.heroLabel.getLocation().y-34);
-
-
-            }else if(floor[hero.z][hero.y][hero.x+1]==BLANK){//下
-                hero.x = hero.x+1;
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x,hero.heroLabel.getLocation().y+34);
-
-            }else if(floor[hero.z][hero.y-1][hero.x]==BLANK){//左
-                hero.y = hero.y-1;
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x-34,
-                        hero.heroLabel.getLocation().y);
-            }else{//右
-                hero.y = hero.y+1;
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x+34,
-                        hero.heroLabel.getLocation().y);
-            }
-
-
-
-
-        }else {
-
-            for(int j=0;j<11;j++){
-                for(int k=0;k<11;k++){
-                    if (floor[floorNum][j][k]==UPSTAIR){
-                        hero.z = floorNum;
-                        hero.y = j;
-                        hero.x = k;
-                        hero.heroLabel.setLocation(upstairs[floorNum][j][k].upstairLabel.getLocation().x,
-                                upstairs[floorNum][j][k].upstairLabel.getLocation().y);
-                    }
-                }
-            }
-
-            //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
-            if(hero.x-1>=0&&floor[hero.z][hero.y][hero.x-1]==BLANK){//上
-                hero.x = hero.x-1;
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x ,hero.heroLabel.getLocation().y-34);
-
-
-            }else if(hero.x+1<=10&&floor[hero.z][hero.y][hero.x+1]==BLANK){//下
-                hero.x = hero.x+1;
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x,hero.heroLabel.getLocation().y+34);
-
-            }else if(hero.y-1>=0&&floor[hero.z][hero.y-1][hero.x]==BLANK){//左
-                hero.y = hero.y-1;
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x-34,
-                        hero.heroLabel.getLocation().y);
-            }else{//右
-                hero.y = hero.y+1;
-                hero.heroLabel.setLocation(hero.heroLabel.getLocation().x+34,
-                        hero.heroLabel.getLocation().y);
-            }
-
-
-
-        }
+        UpORDown = 0;
     }
 
 
 
-
-
-    private void setHeroStatus(){
+    public void setHeroStatus(){
         for(int i=0;i<hero.getClass().getDeclaredFields().length-4;i++){
             try{
                 attributeLabels[i].setText(""+hero.getClass().getDeclaredFields()[i].getInt(hero));
@@ -1236,7 +1055,7 @@ public class GameUI{
     }
 
 
-    private void setFloorNum() {
+    public void setFloorNum() {
         floorLabel.setLocation(92,195);
         floorLabel.setSize(200,300);
         floorLabel.setVisible(true);
