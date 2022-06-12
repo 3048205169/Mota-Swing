@@ -2,10 +2,10 @@ package GameObject.Characters.Enemy;
 
 public class Greenslime extends Monster{
     public Greenslime(){
-        life = 1;
+        life = 50;
+        attack = 20;
         defence = 1;
-        attack = 1;
-        coin=100;
-        experience = 100;
+        coin = 1;
+        experience = 1;
     }
 }

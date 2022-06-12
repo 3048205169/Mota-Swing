@@ -2,11 +2,11 @@ package GameObject.Characters.Enemy;
 
 public class Skeleton extends Monster{
     public Skeleton(){
-        life = 3;
-        attack = 5;
-        defence = 4;
-        coin = 3;
-        experience = 80;
+        life = 110;
+        attack = 25;
+        defence = 5;
+        coin = 5;
+        experience = 4;
     }
 
 }
