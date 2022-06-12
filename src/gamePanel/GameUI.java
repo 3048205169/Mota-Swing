@@ -1071,6 +1071,18 @@ public class GameUI{
             gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
             hero.handbook = true;
         }
+        else if (gameObjects[hero.z][hero.y][hero.x].type.equals("fly")){
+            System.out.println("捡到飞行器！");
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            //修改英雄标签所在的位置
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            //英雄现在站立的地方变成英雄的坐标
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+            //英雄原本站立的地方变成空地
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+            hero.fly = true;
+        }
         else{
             hero.x = hero.x+UpORDown;
             hero.y = hero.y+LeftORRight;
