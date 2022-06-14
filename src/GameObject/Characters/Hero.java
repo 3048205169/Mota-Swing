@@ -19,14 +19,14 @@ public class Hero extends NPC{
     public Hero() {
         this.level = 0;
         this.life = 1000;
-        this.attack = 100;
-        this.defence = 100;
+        this.attack = 500;
+        this.defence = 500;
         this.coin = 0;
         this.experience = 0;
         this.yellowKey = 100;
         this.blueKey = 100;
         this.redKey = 100;
-        this.handbook = false;
+        this.handbook = true;
         this.cross=  false;
         this.fly = false;
     }

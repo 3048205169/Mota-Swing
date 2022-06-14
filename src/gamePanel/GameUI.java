@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.List;
 
 public class GameUI{
 
@@ -644,7 +643,14 @@ public class GameUI{
             handbookLabel.add(CoinAndExpLabel);
 
             JLabel damageLabel = new JLabel();
-            damageLabel.setText("损失 "+"未定义");
+            int loss = calculateLoss(monsterMap.get(aClass));
+            String lossStr = "";
+            if (loss<0){
+                lossStr = "无法战胜";
+            }else{
+                lossStr = ""+loss;
+            }
+            damageLabel.setText("损失 "+lossStr);
             damageLabel.setBackground(Color.WHITE);
             damageLabel.setSize(100,17);
             damageLabel.setLocation(60+100*2,num*50+17);
@@ -706,7 +712,8 @@ public class GameUI{
     }
 
 
-    public boolean fight(Monster monster) {
+    public int calculateLoss(Monster monster){
+        //获取simulateHero和simulateMonster的模拟数据
         Hero simulateHero = new Hero() ;//模拟的英雄的数据
         simulateHero.attack =  hero.attack;
         simulateHero.defence = hero.defence;
@@ -716,13 +723,12 @@ public class GameUI{
         simulateMonster.attack = monster.attack;
         simulateMonster.defence = monster.defence;
         simulateMonster.life = monster.life;
-
         if(simulateMonster.defence>=simulateHero.attack){
-            return false;
+            return -1;
         }else if(simulateHero.defence>=simulateMonster.attack){
             hero.coin = hero.coin+monster.coin;
             hero.experience = hero.experience+monster.experience;
-            return true;
+            return 0;
         }else {
             while (simulateMonster.life>0){//怪物的生命值不为0的时候
                 //怪物砍英雄一刀
@@ -730,17 +736,28 @@ public class GameUI{
                 //英雄砍怪物一刀
                 simulateMonster.life = simulateMonster.life-(simulateHero.attack-simulateMonster.defence);
             }
-            if(simulateHero.life>0){//能够打得赢
-                hero.life = simulateHero.life;
-                hero.coin = hero.coin+monster.coin;
-                hero.experience = hero.experience+monster.experience;
-                return true;
-            }else {
-                return false;
-            }
+            return hero.life - simulateHero.life;
         }
 
 
+
+    }
+    public boolean fight(Monster monster) {
+        boolean result = false;
+        int loss = calculateLoss(monster);
+        if (loss<0){
+            result = false;
+        }else if (loss>=0){
+            if(loss>=hero.life){
+                result = false;
+            }else {
+                hero.life = hero.life-loss;
+                hero.coin = hero.coin+monster.coin;
+                hero.experience = hero.experience+monster.experience;
+                result = true;
+            }
+        }
+        return result;
 
     }
 
@@ -802,11 +819,11 @@ public class GameUI{
             //从bottom当中去除此红门
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
             //修改英雄标签所在的位置
-            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             //英雄现在站立的地方变成英雄的坐标
             gameObjects[hero.z][hero.y][hero.x].type="hero";
             //英雄原本站立的地方变成空地
-            gameObjects[hero.z][hero.y][hero.x+UpORDown].type="blank";
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
 
         }
         else if (gameObjects[hero.z][hero.y][hero.x].type.equals("upstair")){

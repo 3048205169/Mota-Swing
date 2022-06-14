@@ -1205,7 +1205,7 @@ yellowdoor
 blank
 blank
 bluedoor
-seniorwizard
+seniorwitch
 yellowdoor
 redbottle
 skeletoncaptain
@@ -1241,7 +1241,7 @@ blank
 blank
 blank
 blank
-seniorwizard
+seniorwitch
 blank
 wallcell
 stoneman
@@ -1256,7 +1256,7 @@ wallcell
 wallcell
 blank
 bluedoor
-juniorwizard
+juniorwitch
 stoneman
 #9.7
 blank
