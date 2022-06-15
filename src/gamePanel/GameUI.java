@@ -32,6 +32,7 @@ public class GameUI{
     Map<String,Integer> cellMap = new HashMap<>();
     JLabel shopLabel = new JLabel();
     JLabel flyLabel = new JLabel();
+    JLabel flyLabelBottom = new JLabel();
     JLabel handbookLabel = new JLabel();
     JFrame gameFrame = new JFrame();
     JLabel bottom = new JLabel();
@@ -74,10 +75,14 @@ public class GameUI{
         floorNum = 0;
         shopLabel.setVisible(false);
         gamePanel.add(shopLabel);
-        flyLabel.setVisible(false);
-        gamePanel.add(flyLabel);
-        handbookLabel.setVisible(false);
-        gamePanel.add(handbookLabel);
+//        flyLabelBottom.setVisible(false);
+//        flyLabelBottom.setBackground(Color.GRAY);
+//        flyLabelBottom.setSize(300,300);
+//        flyLabelBottom.setLocation(310,100);
+//        flyLabelBottom.add(flyLabel);
+//        gamePanel.add(flyLabelBottom);
+//        handbookLabel.setVisible(false);
+//        gamePanel.add(handbookLabel);
 
 
 
@@ -90,17 +95,35 @@ public class GameUI{
         setGameFrame();//设置gameFrame，比如大小，高度，还有键盘的触发事件
         setBgLabel();
         setBottom();
-
+        setFlyLabelBottom();
         setCells();//设置所有的棋盘上的格子
         addComponent2Floor();//将人物还有道具全部都加进bottom里面
         showFloor();//把所有的墙还有人物还有道具全部都显示出来
         setHeroStatus();//设置英雄的状态
         setFloorNum();//设置楼层功能表里面的楼层数
 
+        flyLabelBottom.setVisible(false);
+//        flyLabelBottom.add(flyLabel);
+        gamePanel.add(flyLabel);
+        gamePanel.add(flyLabelBottom);
+        handbookLabel.setVisible(false);
+        gamePanel.add(handbookLabel);
+
+
         bgLabel.add(bottom);
         gamePanel.add(bgLabel);
 
         gameFrame.setContentPane(gamePanel);
+
+
+    }
+
+    private void setFlyLabelBottom() {
+        flyLabelBottom.setLocation(310,100);
+
+        flyLabelBottom.setVisible(false);
+        flyLabelBottom.setBackground(Color.GRAY);
+        flyLabelBottom.setSize(300,300);
 
 
     }
@@ -471,9 +494,9 @@ public class GameUI{
 
                         ImageIcon simulateGameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
                         JLabel simulateGameObjectLabel = new JLabel();
-                        simulateGameObjectLabel.setSize(17,17);
-                        simulateGameObjectLabel.setLocation(17*j,94+17*k);
-                        simulateGameObjectIcon.setImage(simulateGameObjectIcon.getImage().getScaledInstance(17,17,1));
+                        simulateGameObjectLabel.setSize(24,24);
+                        simulateGameObjectLabel.setLocation(24*j,60+24*k);
+                        simulateGameObjectIcon.setImage(simulateGameObjectIcon.getImage().getScaledInstance(24,24,1));
                         simulateGameObjectLabel.setIcon(simulateGameObjectIcon);
                         gameObjects[i][j][k].simulateGameObjectLabel = simulateGameObjectLabel;
 
@@ -536,7 +559,7 @@ public class GameUI{
                 handbookLabel.setVisible(false);
             }
         }
-        else if(flyLabel.isVisible()){
+        else if(flyLabelBottom.isVisible()){
             //如果飞行器开着
             doFlying(e);
         }
@@ -557,11 +580,15 @@ public class GameUI{
             else if (hero.fly==true&&e.getKeyCode()==KeyEvent.VK_F){
                 System.out.println("开始楼层跳跃");
                 gamePanel.setLayout(null);
-                flyLabel.setVisible(true);
-                flyLabel.setOpaque(true);
+                flyLabelBottom.setVisible(true);
+                flyLabelBottom.setOpaque(true);
+                ImageIcon flyLabelIcon = new ImageIcon("src/imageResource/BlankBg.png");
+                flyLabelIcon.setImage(flyLabelIcon.getImage().getScaledInstance(300,300,1));
+                flyLabel.setIcon(flyLabelIcon);
                 flyLabel.setLocation(310,100);
-                flyLabel.setBackground(Color.GRAY);
-                flyLabel.setSize(300,300);
+                flyLabel.setSize(264,264);
+                flyLabel.setOpaque(true);
+                flyLabel.setVisible(true);
                 simulateFloorNum = floorNum;
                 setFlyLabel();
             }
@@ -585,6 +612,7 @@ public class GameUI{
 
     private void doFlying(KeyEvent e) {
 
+        flyLabelBottom.setVisible(false);
         flyLabel.setVisible(false);
     }
 
