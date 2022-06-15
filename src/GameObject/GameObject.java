@@ -7,5 +7,6 @@ public class GameObject {
     public int y;//列
     public int z;//楼层数
     public JLabel gameObjectLabel;
+    public JLabel simulateGameObjectLabel;
     public String type;
 }

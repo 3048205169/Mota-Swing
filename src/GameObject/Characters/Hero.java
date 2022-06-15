@@ -28,7 +28,7 @@ public class Hero extends NPC{
         this.redKey = 100;
         this.handbook = true;
         this.cross=  false;
-        this.fly = false;
+        this.fly = true;
     }
 
 }

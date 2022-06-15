@@ -26,10 +26,12 @@ import java.util.*;
 public class GameUI{
 
     int floorNum = 0;
+    int simulateFloorNum;
     JLabel floorLabel = new JLabel();
 
     Map<String,Integer> cellMap = new HashMap<>();
     JLabel shopLabel = new JLabel();
+    JLabel flyLabel = new JLabel();
     JLabel handbookLabel = new JLabel();
     JFrame gameFrame = new JFrame();
     JLabel bottom = new JLabel();
@@ -38,6 +40,7 @@ public class GameUI{
     JLabel bgLabel = new JLabel();
 //    int[][][] floor = new int[21][11][11];
     GameObject [][][] gameObjects = new GameObject[22][11][11];
+    GameObject [][][] simulateGameObjects = new GameObject[21][11][11];
 
     Hero hero = new Hero();
 
@@ -71,7 +74,8 @@ public class GameUI{
         floorNum = 0;
         shopLabel.setVisible(false);
         gamePanel.add(shopLabel);
-
+        flyLabel.setVisible(false);
+        gamePanel.add(flyLabel);
         handbookLabel.setVisible(false);
         gamePanel.add(handbookLabel);
 
@@ -404,6 +408,7 @@ public class GameUI{
                 for(int k=0;k<11;k++){//i==x
                     if(gameObjects[i][j][k]!=null){
                         bottom.add(gameObjects[i][j][k].gameObjectLabel);
+                        flyLabel.add(gameObjects[i][j][k].simulateGameObjectLabel);
                     }
                 }
             }
@@ -411,6 +416,23 @@ public class GameUI{
 
     }
 
+    public void showFlyFloor() {
+        for(int i=0;i<22;i++){
+            for(int j=0;j<11;j++){//j==y
+                for(int k=0;k<11;k++){//i==x
+                    if(gameObjects[i][j][k]!=null){
+                        if(i==simulateFloorNum){
+                            gameObjects[i][j][k].simulateGameObjectLabel.setVisible(true);
+                        }else{
+                            gameObjects[i][j][k].simulateGameObjectLabel.setVisible(false);
+                        }
+                    }
+                }
+            }
+        }
+
+        hero.gameObjectLabel.setVisible(true);
+    }
 
     public void showFloor() {
         for(int i=0;i<22;i++){
@@ -444,6 +466,18 @@ public class GameUI{
                         ImageIcon gameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
                         gameObjectIcon.setImage(gameObjectIcon.getImage().getScaledInstance(34,34,1));
                         gameObjectLabel.setIcon(gameObjectIcon);
+
+
+
+                        ImageIcon simulateGameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
+                        JLabel simulateGameObjectLabel = new JLabel();
+                        simulateGameObjectLabel.setSize(17,17);
+                        simulateGameObjectLabel.setLocation(17*j,94+17*k);
+                        simulateGameObjectIcon.setImage(simulateGameObjectIcon.getImage().getScaledInstance(17,17,1));
+                        simulateGameObjectLabel.setIcon(simulateGameObjectIcon);
+                        gameObjects[i][j][k].simulateGameObjectLabel = simulateGameObjectLabel;
+
+
                         if (gameObjects[i][j][k].type.equals("hero")){
                             hero.z = i;
                             hero.y = j;
@@ -492,77 +526,111 @@ public class GameUI{
     }
 
     public void heroDoAction(KeyEvent e) {
-        if(shopLabel.isVisible()==false){
+        if (shopLabel.isVisible()){
+            //如果商店开着
+            doShopping(e);
+        }
+        else if(handbookLabel.isVisible()){
+            //如果手册开着
+            if (e.getKeyCode()==KeyEvent.VK_L){
+                handbookLabel.setVisible(false);
+            }
+        }
+        else if(flyLabel.isVisible()){
+            //如果飞行器开着
+            doFlying(e);
+        }
+        else{
+            //一般状态
+            heroDoMove(e);
             if (hero.handbook==true&&e.getKeyCode()==KeyEvent.VK_L){
                 System.out.println("开始handbook");
-                if (handbookLabel.isVisible()){
-                    handbookLabel.setVisible(false);
-                }else{
-                    gamePanel.setLayout(null);
-                    handbookLabel.setVisible(true);
-                    handbookLabel.setOpaque(true);
-                    handbookLabel.setLocation(300,30);
-                    handbookLabel.setBackground(Color.BLACK);
-                    handbookLabel.setSize(400,400);
-                    setHandBook();
-                }
+                gamePanel.setLayout(null);
+                handbookLabel.setVisible(true);
+                handbookLabel.setOpaque(true);
+                handbookLabel.setLocation(300,30);
+                handbookLabel.setBackground(Color.BLACK);
+                handbookLabel.setSize(400,400);
+                setHandBook();
 
             }
-
-
-
-            if (e.getKeyCode()==KeyEvent.VK_UP){
-                heroGoUp();
-            }
-            else if (e.getKeyCode()==KeyEvent.VK_DOWN){
-                heroGoDown();
-            }
-            else if (e.getKeyCode()==KeyEvent.VK_LEFT){
-                heroGoLeft();
-            }
-            else if (e.getKeyCode()==KeyEvent.VK_RIGHT){
-                heroGoRight();
-            }
-            else{
-                System.out.println("is not ready!");
-            }
-        }
-//        hero.gameObjectLabel.setVisible(false);
-        else {
-            boolean exit = false;
-            if(e.getKeyCode()==KeyEvent.VK_A){
-                hero.coin = hero.coin-25;
-                hero.attack = hero.attack+4;
-                System.out.println("攻击");
-            }
-            else if(e.getKeyCode()==KeyEvent.VK_Q){
-                exit = true;
-                System.out.println("取消");
-            }
-            else if(e.getKeyCode()==KeyEvent.VK_S){
-                hero.coin = hero.coin-25;
-                hero.defence = hero.defence+4;
-                System.out.println("防御");
-            }
-            else if(e.getKeyCode()==KeyEvent.VK_D){
-                hero.coin = hero.coin-25;
-                hero.life = hero.life+800;
-                System.out.println("生命");
-            }
-            else{
-                shopLabel.setVisible(true);
-            }
-
-
-            if (exit){
-                shopLabel.setVisible(false);
+            else if (hero.fly==true&&e.getKeyCode()==KeyEvent.VK_F){
+                System.out.println("开始楼层跳跃");
+                gamePanel.setLayout(null);
+                flyLabel.setVisible(true);
+                flyLabel.setOpaque(true);
+                flyLabel.setLocation(310,100);
+                flyLabel.setBackground(Color.GRAY);
+                flyLabel.setSize(300,300);
+                simulateFloorNum = floorNum;
+                setFlyLabel();
             }
 
         }
 
-
-//        hero.gameObjectLabel.setVisible(true);
         reLoadGameFrame();
+    }
+
+
+
+    private void setFlyLabel() {
+
+        //showfloor一样，弄个类似的
+        showFlyFloor();
+
+
+
+
+    }
+
+    private void doFlying(KeyEvent e) {
+
+        flyLabel.setVisible(false);
+    }
+
+    private void doShopping(KeyEvent e) {
+        if(e.getKeyCode()==KeyEvent.VK_A){
+            hero.coin = hero.coin-25;
+            hero.attack = hero.attack+4;
+            System.out.println("攻击");
+        }
+        else if(e.getKeyCode()==KeyEvent.VK_Q){
+            shopLabel.setVisible(false);
+            System.out.println("取消");
+        }
+        else if(e.getKeyCode()==KeyEvent.VK_S){
+            hero.coin = hero.coin-25;
+            hero.defence = hero.defence+4;
+            System.out.println("防御");
+        }
+        else if(e.getKeyCode()==KeyEvent.VK_D){
+            hero.coin = hero.coin-25;
+            hero.life = hero.life+800;
+            System.out.println("生命");
+        }
+        else{
+            shopLabel.setVisible(true);
+        }
+    }
+
+    private void heroDoMove(KeyEvent e) {
+        if (e.getKeyCode()==KeyEvent.VK_UP){
+            heroGoUp();
+        }
+        else if (e.getKeyCode()==KeyEvent.VK_DOWN){
+            heroGoDown();
+        }
+        else if (e.getKeyCode()==KeyEvent.VK_LEFT){
+            heroGoLeft();
+        }
+        else if (e.getKeyCode()==KeyEvent.VK_RIGHT){
+            heroGoRight();
+        }
+        else{
+            System.out.println("is not ready!");
+        }
+
+
     }
 
     private void setHandBook() {
