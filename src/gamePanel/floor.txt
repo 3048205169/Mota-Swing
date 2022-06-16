@@ -1424,13 +1424,13 @@ wallcell
 yellowdoor
 wallcell
 blank
-juniorwozard
+juniorwizard
 bluekey
 #10.10
 wallcell
 blank
 seniorwitch
-walllcell
+wallcell
 wallcell
 wallcell
 redbat
