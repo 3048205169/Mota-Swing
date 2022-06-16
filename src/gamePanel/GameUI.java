@@ -119,7 +119,7 @@ public class GameUI{
     }
 
     private void setFlyLabelBottom() {
-        flyLabelBottom.setLocation(310,100);
+        flyLabelBottom.setLocation(350,100);
 
         flyLabelBottom.setVisible(false);
         flyLabelBottom.setBackground(Color.GRAY);
@@ -132,80 +132,7 @@ public class GameUI{
         cellMap.put("blank",BLANK);
     }
 
-    public void SetHeroCoor(boolean upOrDown) {
-        if(upOrDown==true){
-            for(int j=0;j<11;j++){
-                for(int k=0;k<11;k++){
-                    if (gameObjects[floorNum][j][k]!=null&&gameObjects[floorNum][j][k].type.equals("downstair")){
-                        hero.z = floorNum;
-                        hero.y = j;
-                        hero.x = k;
-                        hero.gameObjectLabel.setLocation(gameObjects[floorNum][j][k].gameObjectLabel.getLocation().x,
-                                gameObjects[floorNum][j][k].gameObjectLabel.getLocation().y);
-                    }
-                }
-            }
 
-            //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
-            if(hero.x-1>=0&&gameObjects[hero.z][hero.y][hero.x-1].type.equals("blank")){//上
-                hero.x = hero.x-1;
-                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x ,hero.gameObjectLabel.getLocation().y-34);
-
-
-            }else if(hero.x+1<=10&&gameObjects[hero.z][hero.y][hero.x+1].type.equals("blank")){//下
-
-                hero.x = hero.x+1;
-                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y+34);
-
-            }else if(hero.y-1>=0&&gameObjects[hero.z][hero.y-1][hero.x].type.equals("blank")){//左
-                hero.y = hero.y-1;
-                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,
-                        hero.gameObjectLabel.getLocation().y);
-            }else{//右
-                hero.y = hero.y+1;
-                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,
-                        hero.gameObjectLabel.getLocation().y);
-            }
-
-        }
-        else {
-
-            for(int j=0;j<11;j++){
-                for(int k=0;k<11;k++){
-                    if (null!=gameObjects[floorNum][j][k]&&gameObjects[floorNum][j][k].type.equals("upstair")){
-                        hero.z = floorNum;
-                        hero.y = j;
-                        hero.x = k;
-                        hero.gameObjectLabel.setLocation(gameObjects[floorNum][j][k].gameObjectLabel.getLocation().x,
-                                gameObjects[floorNum][j][k].gameObjectLabel.getLocation().y);
-                    }
-                }
-            }
-
-            //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
-            if(hero.x-1>=0&&gameObjects[hero.z][hero.y][hero.x-1].type.equals("blank")){//上
-                hero.x = hero.x-1;
-                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x ,hero.gameObjectLabel.getLocation().y-34);
-
-
-            }else if(hero.x+1<=10&&gameObjects[hero.z][hero.y][hero.x+1].type.equals("blank")){//下
-                hero.x = hero.x+1;
-                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y+34);
-
-            }else if(hero.y-1>=0&&gameObjects[hero.z][hero.y-1][hero.x].type.equals("blank")){//左
-                hero.y = hero.y-1;
-                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,
-                        hero.gameObjectLabel.getLocation().y);
-            }else{//右
-                hero.y = hero.y+1;
-                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,
-                        hero.gameObjectLabel.getLocation().y);
-            }
-
-
-
-        }
-    }
 
 
 
@@ -495,7 +422,7 @@ public class GameUI{
                         ImageIcon simulateGameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
                         JLabel simulateGameObjectLabel = new JLabel();
                         simulateGameObjectLabel.setSize(24,24);
-                        simulateGameObjectLabel.setLocation(24*j,60+24*k);
+                        simulateGameObjectLabel.setLocation(24*j,24*k);
                         simulateGameObjectIcon.setImage(simulateGameObjectIcon.getImage().getScaledInstance(24,24,1));
                         simulateGameObjectLabel.setIcon(simulateGameObjectIcon);
                         gameObjects[i][j][k].simulateGameObjectLabel = simulateGameObjectLabel;
@@ -585,7 +512,7 @@ public class GameUI{
                 ImageIcon flyLabelIcon = new ImageIcon("src/imageResource/BlankBg.png");
                 flyLabelIcon.setImage(flyLabelIcon.getImage().getScaledInstance(300,300,1));
                 flyLabel.setIcon(flyLabelIcon);
-                flyLabel.setLocation(310,100);
+                flyLabel.setLocation(360,120);
                 flyLabel.setSize(264,264);
                 flyLabel.setOpaque(true);
                 flyLabel.setVisible(true);
@@ -611,10 +538,120 @@ public class GameUI{
     }
 
     private void doFlying(KeyEvent e) {
+        if(e.getKeyCode()==KeyEvent.VK_UP){
+            if (simulateFloorNum<=20){
+                simulateFloorNum = simulateFloorNum + 1;
+                setFlyLabel();
+            }
+        }else if (e.getKeyCode()==KeyEvent.VK_DOWN){
+            if (simulateFloorNum>=1){
+                simulateFloorNum = simulateFloorNum - 1;
+                setFlyLabel();
+            }
+        }else if(e.getKeyCode()==KeyEvent.VK_F) {
+            flyLabelBottom.setVisible(false);
+            flyLabel.setVisible(false);
+        }else if(e.getKeyCode()==KeyEvent.VK_ENTER){
+            //todo
+            if (floorNum<=simulateFloorNum){
+                gameObjects[hero.z][hero.y][hero.x].type="blank";
+                floorNum = simulateFloorNum;
+                SetHeroCoor(true);
+                gameObjects[hero.z][hero.y][hero.x].type="hero";
 
-        flyLabelBottom.setVisible(false);
-        flyLabel.setVisible(false);
+            }else {
+                gameObjects[hero.z][hero.y][hero.x].type="blank";
+                floorNum = simulateFloorNum;
+                SetHeroCoor(false);
+                gameObjects[hero.z][hero.y][hero.x].type="hero";
+            }
+            flyLabelBottom.setVisible(false);
+            flyLabel.setVisible(false);
+        }
+        else {
+            System.out.println("暂时不支持");
+
+        }
+
+
+
     }
+    public void SetHeroCoor(boolean upOrDown) {
+        if(upOrDown==true){
+            for(int j=0;j<11;j++){
+                for(int k=0;k<11;k++){
+                    if (gameObjects[floorNum][j][k]!=null&&gameObjects[floorNum][j][k].type.equals("downstair")){
+                        hero.z = floorNum;
+                        hero.y = j;
+                        hero.x = k;
+                        hero.gameObjectLabel.setLocation(gameObjects[floorNum][j][k].gameObjectLabel.getLocation().x,
+                                gameObjects[floorNum][j][k].gameObjectLabel.getLocation().y);
+                    }
+                }
+            }
+
+            //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
+            if(hero.x-1>=0&&gameObjects[hero.z][hero.y][hero.x-1].type.equals("blank")){//上
+                hero.x = hero.x-1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x ,hero.gameObjectLabel.getLocation().y-34);
+
+
+            }else if(hero.x+1<=10&&gameObjects[hero.z][hero.y][hero.x+1].type.equals("blank")){//下
+
+                hero.x = hero.x+1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y+34);
+
+            }else if(hero.y-1>=0&&gameObjects[hero.z][hero.y-1][hero.x].type.equals("blank")){//左
+                hero.y = hero.y-1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,
+                        hero.gameObjectLabel.getLocation().y);
+            }else{//右
+                hero.y = hero.y+1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,
+                        hero.gameObjectLabel.getLocation().y);
+            }
+
+        }
+        else {
+
+            for(int j=0;j<11;j++){
+                for(int k=0;k<11;k++){
+                    if (null!=gameObjects[floorNum][j][k]&&gameObjects[floorNum][j][k].type.equals("upstair")){
+                        hero.z = floorNum;
+                        hero.y = j;
+                        hero.x = k;
+                        hero.gameObjectLabel.setLocation(gameObjects[floorNum][j][k].gameObjectLabel.getLocation().x,
+                                gameObjects[floorNum][j][k].gameObjectLabel.getLocation().y);
+                    }
+                }
+            }
+
+            //现在hero的坐标就是上一层的downstair的坐标，然而需要上下左右遍历一次，然后得到空地的坐标，把空地的坐标设置给hero
+            if(hero.x-1>=0&&gameObjects[hero.z][hero.y][hero.x-1].type.equals("blank")){//上
+                hero.x = hero.x-1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x ,hero.gameObjectLabel.getLocation().y-34);
+
+
+            }else if(hero.x+1<=10&&gameObjects[hero.z][hero.y][hero.x+1].type.equals("blank")){//下
+                hero.x = hero.x+1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x,hero.gameObjectLabel.getLocation().y+34);
+
+            }else if(hero.y-1>=0&&gameObjects[hero.z][hero.y-1][hero.x].type.equals("blank")){//左
+                hero.y = hero.y-1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34,
+                        hero.gameObjectLabel.getLocation().y);
+            }else{//右
+                hero.y = hero.y+1;
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x+34,
+                        hero.gameObjectLabel.getLocation().y);
+            }
+
+
+
+        }
+    }
+
+
 
     private void doShopping(KeyEvent e) {
         if(e.getKeyCode()==KeyEvent.VK_A){
@@ -976,7 +1013,6 @@ public class GameUI{
             hero.redKey = hero.redKey+1;//
             //红钥匙的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
-//                    yellowDoors[hero.z][hero.y][hero.x]=null;
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             //英雄现在站立的地方变成英雄的坐标
