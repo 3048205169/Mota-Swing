@@ -654,28 +654,56 @@ public class GameUI{
 
 
     private void doShopping(KeyEvent e) {
-        if(e.getKeyCode()==KeyEvent.VK_A){
-            hero.coin = hero.coin-25;
-            hero.attack = hero.attack+4;
-            System.out.println("攻击");
+        if (floorNum==3){
+            if(e.getKeyCode()==KeyEvent.VK_A){
+                hero.coin = hero.coin-25;
+                hero.attack = hero.attack+4;
+                System.out.println("攻击");
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_Q){
+                shopLabel.setVisible(false);
+                System.out.println("取消");
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_S){
+                hero.coin = hero.coin-25;
+                hero.defence = hero.defence+4;
+                System.out.println("防御");
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_D){
+                hero.coin = hero.coin-25;
+                hero.life = hero.life+800;
+                System.out.println("生命");
+            }
+            else{
+                shopLabel.setVisible(true);
+            }
+        }else if (floorNum==11){
+            if(e.getKeyCode()==KeyEvent.VK_A){
+                hero.coin = hero.coin-100;
+                hero.attack = hero.attack+20;
+                System.out.println("攻击");
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_Q){
+                shopLabel.setVisible(false);
+                System.out.println("取消");
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_S){
+                hero.coin = hero.coin-100;
+                hero.defence = hero.defence+20;
+                System.out.println("防御");
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_D){
+                hero.coin = hero.coin-100;
+                hero.life = hero.life+4000;
+                System.out.println("生命");
+            }
+            else{
+                shopLabel.setVisible(true);
+            }
+        }else {
+            System.out.println("此地无商店");
         }
-        else if(e.getKeyCode()==KeyEvent.VK_Q){
-            shopLabel.setVisible(false);
-            System.out.println("取消");
-        }
-        else if(e.getKeyCode()==KeyEvent.VK_S){
-            hero.coin = hero.coin-25;
-            hero.defence = hero.defence+4;
-            System.out.println("防御");
-        }
-        else if(e.getKeyCode()==KeyEvent.VK_D){
-            hero.coin = hero.coin-25;
-            hero.life = hero.life+800;
-            System.out.println("生命");
-        }
-        else{
-            shopLabel.setVisible(true);
-        }
+
     }
 
     private void heroDoMove(KeyEvent e) {
@@ -1187,6 +1215,73 @@ public class GameUI{
                 hero.x = hero.x+UpORDown;
                 hero.y = hero.y+LeftORRight;
 
+            }
+            else if (gameObjects[hero.z][hero.y][hero.x].type.contains("second")){
+                gamePanel.setLayout(null);
+
+                shopLabel.setSize(150,200);
+                shopLabel.setLocation(430,120);
+                shopLabel.setVisible(true);
+                shopLabel.setOpaque(true);
+                shopLabel.setBackground(Color.GRAY);
+
+                JLabel title = new JLabel();
+                title.setLayout(null);
+                title.setSize(150,40);
+                title.setLocation(0,0);
+                title.setVisible(true);
+                title.setOpaque(true);
+                title.setBackground(Color.WHITE);
+                title.setText("献祭就能更强");
+
+                JLabel lifeImprove = new JLabel();
+                lifeImprove.setLayout(null);
+                lifeImprove.setSize(150,40);
+                lifeImprove.setLocation(0,40);
+                lifeImprove.setVisible(true);
+                lifeImprove.setOpaque(true);
+
+                lifeImprove.setBackground(Color.YELLOW);
+                lifeImprove.setText("生命+800");
+
+                JLabel attackImprove = new JLabel();
+                attackImprove.setLayout(null);
+                attackImprove.setSize(150,40);
+                attackImprove.setLocation(0,80);
+                attackImprove.setVisible(true);
+                attackImprove.setOpaque(true);
+
+                attackImprove.setBackground(Color.PINK);
+                attackImprove.setText("攻击+800");
+
+                JLabel defenceImprove = new JLabel();
+                defenceImprove.setLayout(null);
+                defenceImprove.setSize(150,40);
+                defenceImprove.setLocation(0,120);
+                defenceImprove.setVisible(true);
+                defenceImprove.setOpaque(true);
+                defenceImprove.setBackground(Color.ORANGE);
+                defenceImprove.setText("防御+800");
+
+                JLabel quit = new JLabel();
+                quit.setLayout(null);
+                quit.setSize(150,40);
+                quit.setLocation(0,160);
+                quit.setVisible(true);
+                quit.setOpaque(true);
+
+                quit.setBackground(Color.CYAN);
+                quit.setText("取消");
+
+                shopLabel.add(title);
+                shopLabel.add(lifeImprove);
+                shopLabel.add(attackImprove);
+                shopLabel.add(defenceImprove);
+                shopLabel.add(quit);
+
+
+                hero.x = hero.x+UpORDown;
+                hero.y = hero.y+LeftORRight;
             }
 
 
