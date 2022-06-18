@@ -1,9 +1,11 @@
 package GameObject.Characters.SpecialChar;
 
-import javax.swing.*;
-import java.awt.*;
-
-public class Greedy extends SpecialCharacter{
+public class Greedy extends Shop{
     public boolean isOpen;
-    public JPanel tradingPanel;
+    public int life;
+    public int attack;
+    public int defence;
+    public int coin;
+
+
 }

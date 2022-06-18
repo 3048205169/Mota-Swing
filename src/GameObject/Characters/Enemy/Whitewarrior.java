@@ -1,6 +1,6 @@
 package GameObject.Characters.Enemy;
 
-public class Whitewarrior extends Monster{
+public class Whitewarrior extends Monster implements Vampire {
     public Whitewarrior() {
         life = 1300;
         attack = 300;

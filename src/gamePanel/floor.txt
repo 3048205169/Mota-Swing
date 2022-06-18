@@ -1703,7 +1703,7 @@ handswordman
 wallcell
 blank
 #12.11
-item
+hook
 bluebottle
 blank
 blank
@@ -2538,7 +2538,7 @@ blank
 blank
 reddevilking
 fence
-item
+sacredsword
 darkstar
 darkstar
 blank
@@ -2610,7 +2610,7 @@ blank
 blank
 reddevilking
 fence
-item
+sacredshield
 darkstar
 darkstar
 blank

@@ -1,6 +1,6 @@
 package GameObject.Characters.Enemy;
 
-public class Soulwitch extends Monster{
+public class Soulwitch extends Monster implements Vampire{
     public Soulwitch() {
         life = 1500;
         attack = 830;

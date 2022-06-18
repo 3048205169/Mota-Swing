@@ -1,7 +1,7 @@
 package gamePanel;
 import GameObject.Characters.Enemy.*;
 import GameObject.Characters.Hero;
-import GameObject.Characters.SpecialChar.Firstgreedy;
+import GameObject.Characters.SpecialChar.*;
 import GameObject.GameObject;
 
 import GameObject.Matter.Item.Bottle.Bluebottle;
@@ -10,6 +10,7 @@ import GameObject.Matter.Item.Bottle.Redbottle;
 import GameObject.Matter.Item.Diamond.Bluediamond;
 import GameObject.Matter.Item.Diamond.Diamond;
 import GameObject.Matter.Item.Diamond.Reddiamond;
+import GameObject.Matter.Item.Flyfeather;
 import GameObject.Matter.Item.Key.Key;
 import GameObject.Matter.Item.Weapon.Weapon;
 import com.sun.xml.internal.ws.util.StringUtils;
@@ -21,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class GameUI{
@@ -31,17 +33,28 @@ public class GameUI{
 
     Map<String,Integer> cellMap = new HashMap<>();
     JLabel shopLabel = new JLabel();
+    JLabel title = new JLabel();
+    JLabel firstLine = new JLabel();
+    JLabel secondLine = new JLabel();
+    JLabel thirdLine = new JLabel();
+    JLabel quit = new JLabel();
+
+    String shopDirect = "";//表示商店在主角的什么方位
+
+
     JLabel flyLabel = new JLabel();
     JLabel flyLabelBottom = new JLabel();
+    JLabel flyLabelTitle = new JLabel();
     JLabel handbookLabel = new JLabel();
     JFrame gameFrame = new JFrame();
     JLabel bottom = new JLabel();
     JPanel gamePanel = new JPanel();
 
+    JLabel dialogLabel = new JLabel();
+
     JLabel bgLabel = new JLabel();
 //    int[][][] floor = new int[21][11][11];
     GameObject [][][] gameObjects = new GameObject[22][11][11];
-    GameObject [][][] simulateGameObjects = new GameObject[21][11][11];
 
     Hero hero = new Hero();
 
@@ -75,15 +88,11 @@ public class GameUI{
         floorNum = 0;
         shopLabel.setVisible(false);
         gamePanel.add(shopLabel);
-//        flyLabelBottom.setVisible(false);
-//        flyLabelBottom.setBackground(Color.GRAY);
-//        flyLabelBottom.setSize(300,300);
-//        flyLabelBottom.setLocation(310,100);
-//        flyLabelBottom.add(flyLabel);
-//        gamePanel.add(flyLabelBottom);
-//        handbookLabel.setVisible(false);
-//        gamePanel.add(handbookLabel);
-
+        shopLabel.add(title);
+        shopLabel.add(firstLine);
+        shopLabel.add(secondLine);
+        shopLabel.add(thirdLine);
+        shopLabel.add(quit);
 
 
         initMonsterNameSet();
@@ -102,8 +111,11 @@ public class GameUI{
         setHeroStatus();//设置英雄的状态
         setFloorNum();//设置楼层功能表里面的楼层数
 
-        flyLabelBottom.setVisible(false);
-//        flyLabelBottom.add(flyLabel);
+        dialogLabel.setVisible(false);
+        gamePanel.add(dialogLabel);
+
+        flyLabelTitle.setVisible(false);
+        gamePanel.add(flyLabelTitle);
         gamePanel.add(flyLabel);
         gamePanel.add(flyLabelBottom);
         handbookLabel.setVisible(false);
@@ -113,18 +125,18 @@ public class GameUI{
         bgLabel.add(bottom);
         gamePanel.add(bgLabel);
 
+
         gameFrame.setContentPane(gamePanel);
 
 
     }
 
     private void setFlyLabelBottom() {
-        flyLabelBottom.setLocation(350,100);
+        flyLabelBottom.setLocation(320,100);
 
         flyLabelBottom.setVisible(false);
         flyLabelBottom.setBackground(Color.GRAY);
-        flyLabelBottom.setSize(300,300);
-
+        flyLabelBottom.setSize(370,300);
 
     }
 
@@ -162,21 +174,24 @@ public class GameUI{
     public void setAttributeLabels() {
         int[]yCoor = new int[]{-85,-55,-30,-5,25,50,90,125,155};
 
-        for (int i=0;i<hero.getClass().getDeclaredFields().length-3;i++){
-            JLabel attributeLabel = new JLabel();
-            attributeLabel.setLocation(100,yCoor[i]);
-            attributeLabel.setSize(200,300);
-            attributeLabel.setVisible(true);
-            attributeLabel.setFont(new Font("宋体", Font.PLAIN, 20));
-            attributeLabel.setForeground(Color.WHITE);
-            try {
-                attributeLabel.setText(""+hero.getClass().getDeclaredFields()[i].getInt(hero));
-            }catch (Exception e){
-                e.printStackTrace();
+        for (int i=0;i<hero.getClass().getDeclaredFields().length;i++){
+            if (hero.getClass().getDeclaredFields()[i].getType().isAssignableFrom(int.class)){
+                JLabel attributeLabel = new JLabel();
+                attributeLabel.setLocation(100,yCoor[i]);
+                attributeLabel.setSize(200,300);
+                attributeLabel.setVisible(true);
+                attributeLabel.setFont(new Font("宋体", Font.PLAIN, 20));
+                attributeLabel.setForeground(Color.WHITE);
+                try {
+                    attributeLabel.setText(""+hero.getClass().getDeclaredFields()[i].getInt(hero));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                attributeLabel.setVisible(true);
+                bgLabel.add(attributeLabel);
+                attributeLabels[i]=attributeLabel;
             }
-            attributeLabel.setVisible(true);
-            bgLabel.add(attributeLabel);
-            attributeLabels[i]=attributeLabel;
+
         }
     }
 
@@ -260,20 +275,38 @@ public class GameUI{
 
                     gameObjects[i][j][k] = diamond;//todo
                 }
-                else if(line.contains("firstgreedy")){
-                    Firstgreedy firstgreedy = new Firstgreedy();
-                    try{
-                        Constructor<?> constructor = Class.forName("GameObject.Characters.SpecialChar." + StringUtils.capitalize(line)).getConstructor();
-                        firstgreedy = (Firstgreedy) constructor.newInstance();
-                        firstgreedy.type = line;
-                        firstgreedy.x = k;
-                        firstgreedy.y = j;
-                        firstgreedy.z = i;
-                    }catch (Exception e){
-                        e.printStackTrace();
+                else if(line.contains("greedy")){
+                    if (line.contains("first")){
+                        Firstgreedy firstgreedy = new Firstgreedy();
+                        try{
+                            Constructor<?> constructor = Class.forName("GameObject.Characters.SpecialChar." + StringUtils.capitalize(line)).getConstructor();
+                            firstgreedy = (Firstgreedy) constructor.newInstance();
+                            firstgreedy.type = line;
+                            firstgreedy.x = k;
+                            firstgreedy.y = j;
+                            firstgreedy.z = i;
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+
+                        gameObjects[i][j][k] = firstgreedy;//todo
+                    }
+                    else if (line.contains("second")){
+                        Secondgreedy secondgreedy = new Secondgreedy();
+                        try{
+                            Constructor<?> constructor = Class.forName("GameObject.Characters.SpecialChar." + StringUtils.capitalize(line)).getConstructor();
+                            secondgreedy = (Secondgreedy) constructor.newInstance();
+                            secondgreedy.type = line;
+                            secondgreedy.x = k;
+                            secondgreedy.y = j;
+                            secondgreedy.z = i;
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+
+                        gameObjects[i][j][k] = secondgreedy;//todo
                     }
 
-                    gameObjects[i][j][k] = firstgreedy;//todo
                 }
                 else if(line.contains("hero")){
                     GameObject gameObject = new GameObject();
@@ -298,6 +331,36 @@ public class GameUI{
                     }
 
                     gameObjects[i][j][k] = weapon;//todo
+                }
+                else if(line.contains("celler")){
+                    Celler celler = new Celler();
+                    try{
+                        Constructor<?> constructor = Class.forName("GameObject.Characters.SpecialChar." + StringUtils.capitalize(line)).getConstructor();
+                        celler = (Celler) constructor.newInstance();
+                        celler.type = line;
+                        celler.x = k;
+                        celler.y = j;
+                        celler.z = i;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    gameObjects[i][j][k] = celler;
+                }
+                else if(line.contains("oldman")){
+                    Oldman oldman = new Oldman();
+                    try{
+                        Constructor<?> constructor = Class.forName("GameObject.Characters.SpecialChar." + StringUtils.capitalize(line)).getConstructor();
+                        oldman = (Oldman) constructor.newInstance();
+                        oldman.type = line;
+                        oldman.x = k;
+                        oldman.y = j;
+                        oldman.z = i;
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    gameObjects[i][j][k] = oldman;//todo
                 }
 
 
@@ -337,12 +400,16 @@ public class GameUI{
 
 
     public void updateStatus() {
-        for (int i=0;i<hero.getClass().getDeclaredFields().length-3;i++){
-            try{
-                attributeLabels[i].setText(""+hero.getClass().getDeclaredFields()[i].getInt(hero));
-            }catch (Exception e){
-                e.printStackTrace();
+        for (int i=0;i<hero.getClass().getDeclaredFields().length-4;i++){
+            if (hero.getClass().getDeclaredFields()[i].getType().isAssignableFrom(int.class)){
+                try{
+                    attributeLabels[i].setText(""+hero.getClass().getDeclaredFields()[i].getInt(hero));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
+
+
 
         }
 
@@ -371,7 +438,7 @@ public class GameUI{
             for(int j=0;j<11;j++){//j==y
                 for(int k=0;k<11;k++){//i==x
                     if(gameObjects[i][j][k]!=null){
-                        if(i==simulateFloorNum){
+                        if(i==simulateFloorNum&&!gameObjects[i][j][k].type.equals("blank")&&!gameObjects[i][j][k].type.equals("hero")){
                             gameObjects[i][j][k].simulateGameObjectLabel.setVisible(true);
                         }else{
                             gameObjects[i][j][k].simulateGameObjectLabel.setVisible(false);
@@ -381,7 +448,8 @@ public class GameUI{
             }
         }
 
-        hero.gameObjectLabel.setVisible(true);
+
+        hero.gameObjectLabel.setVisible(false);
     }
 
     public void showFloor() {
@@ -469,15 +537,19 @@ public class GameUI{
 
             @Override
             public void keyReleased(KeyEvent e) {
-            }
 
+            }
 
         });
     }
 
     public void heroDoAction(KeyEvent e) {
+        if (dialogLabel.isVisible()){
+            if (e.getKeyCode()==KeyEvent.VK_ENTER||e.getKeyCode()==KeyEvent.VK_SPACE){
+                dialogLabel.setVisible(false);
+            }
+        }
         if (shopLabel.isVisible()){
-            //如果商店开着
             doShopping(e);
         }
         else if(handbookLabel.isVisible()){
@@ -492,7 +564,9 @@ public class GameUI{
         }
         else{
             //一般状态
+
             heroDoMove(e);
+
             if (hero.handbook==true&&e.getKeyCode()==KeyEvent.VK_L){
                 System.out.println("开始handbook");
                 gamePanel.setLayout(null);
@@ -505,6 +579,8 @@ public class GameUI{
 
             }
             else if (hero.fly==true&&e.getKeyCode()==KeyEvent.VK_F){
+                simulateFloorNum = floorNum;
+                showFlyFloor();
                 System.out.println("开始楼层跳跃");
                 gamePanel.setLayout(null);
                 flyLabelBottom.setVisible(true);
@@ -512,12 +588,14 @@ public class GameUI{
                 ImageIcon flyLabelIcon = new ImageIcon("src/imageResource/BlankBg.png");
                 flyLabelIcon.setImage(flyLabelIcon.getImage().getScaledInstance(300,300,1));
                 flyLabel.setIcon(flyLabelIcon);
-                flyLabel.setLocation(360,120);
+                flyLabel.setLocation(330,120);
                 flyLabel.setSize(264,264);
                 flyLabel.setOpaque(true);
                 flyLabel.setVisible(true);
-                simulateFloorNum = floorNum;
-                setFlyLabel();
+
+                setFlyLabelTitle();
+
+//                setFlyLabel();
             }
 
         }
@@ -527,30 +605,41 @@ public class GameUI{
 
 
 
-    private void setFlyLabel() {
 
-        //showfloor一样，弄个类似的
-        showFlyFloor();
-
-
-
-
+    public void setFlyLabelTitle(){
+        flyLabelTitle.setText("第"+simulateFloorNum+"层");
+        flyLabelTitle.setBackground(Color.WHITE);
+        flyLabelTitle.setLocation(600,230);
+        flyLabelTitle.setSize(90,30);
+        flyLabelTitle.setOpaque(true);
+        flyLabelTitle.setVisible(true);
     }
 
+
+
+
+
     private void doFlying(KeyEvent e) {
+        //todo
+        //重新显示飞行的页面
+        showFlyFloor();
+        setFlyLabelTitle();
         if(e.getKeyCode()==KeyEvent.VK_UP){
             if (simulateFloorNum<=20){
                 simulateFloorNum = simulateFloorNum + 1;
-                setFlyLabel();
+                showFlyFloor();
             }
+            setFlyLabelTitle();
         }else if (e.getKeyCode()==KeyEvent.VK_DOWN){
             if (simulateFloorNum>=1){
                 simulateFloorNum = simulateFloorNum - 1;
-                setFlyLabel();
+                showFlyFloor();
             }
+            setFlyLabelTitle();
         }else if(e.getKeyCode()==KeyEvent.VK_F) {
             flyLabelBottom.setVisible(false);
             flyLabel.setVisible(false);
+            flyLabelTitle.setVisible(false);
         }else if(e.getKeyCode()==KeyEvent.VK_ENTER){
             //todo
             if (floorNum<=simulateFloorNum){
@@ -567,6 +656,7 @@ public class GameUI{
             }
             flyLabelBottom.setVisible(false);
             flyLabel.setVisible(false);
+            flyLabelTitle.setVisible(false);
         }
         else {
             System.out.println("暂时不支持");
@@ -654,13 +744,85 @@ public class GameUI{
 
 
     private void doShopping(KeyEvent e) {
-        if (floorNum==3){
+        int shopX = hero.x;
+        int shopY = hero.y;
+        if (shopDirect.equals("UP")){
+            shopX = shopX - 1;
+        }
+        else if(shopDirect.equals("DOWN")){
+            shopX = shopX + 1;
+        }
+        else if(shopDirect.equals("LEFT")){
+            shopY = shopY -1;
+        }
+        else if(shopDirect.equals("RIGHT")){
+            shopY = shopY+1;
+        }
+        else{
+            System.out.println("方位无变化");
+        }
+        if (floorNum==5){
+            if (Oldman.class.isAssignableFrom(gameObjects[floorNum][shopY][shopX].getClass())){
+                if(e.getKeyCode()==KeyEvent.VK_A){
+                    hero.experience = hero.experience-30;
+                    hero.attack = hero.attack+5;
+                }
+                else if(e.getKeyCode()==KeyEvent.VK_Q){
+                    shopDirect = "NO";
+                    title.setVisible(false);
+                    firstLine.setVisible(false);
+                    secondLine.setVisible(false);
+                    thirdLine.setVisible(false);
+                    shopLabel.setVisible(false);
+                }
+                else if(e.getKeyCode()==KeyEvent.VK_S){
+                    hero.experience = hero.experience-30;
+                    hero.defence = hero.defence+5;
+                }
+                else if(e.getKeyCode()==KeyEvent.VK_D){
+                    hero.experience = hero.experience-100;
+                    hero.level = hero.level+1;
+                }
+                else{
+                    shopLabel.setVisible(true);
+                }
+            }
+            else if(Celler.class.isAssignableFrom(gameObjects[floorNum][shopY][shopX].getClass())){
+                if(e.getKeyCode()==KeyEvent.VK_A){
+                    hero.coin = hero.coin-50;
+                    hero.bluekey = hero.bluekey+1;
+                }
+                else if(e.getKeyCode()==KeyEvent.VK_Q){
+                    shopLabel.setVisible(false);
+                    System.out.println("取消");
+                }
+                else if(e.getKeyCode()==KeyEvent.VK_S){
+                    hero.coin = hero.coin-100;
+                    hero.redkey = hero.redkey+1;
+                }
+                else if(e.getKeyCode()==KeyEvent.VK_D){
+                    hero.coin = hero.coin-10;
+                    hero.yellowkey = hero.yellowkey+1;
+                }
+                else{
+                    shopLabel.setVisible(true);
+                }
+            }
+
+        }
+
+        else if (floorNum==3){
             if(e.getKeyCode()==KeyEvent.VK_A){
                 hero.coin = hero.coin-25;
                 hero.attack = hero.attack+4;
                 System.out.println("攻击");
             }
             else if(e.getKeyCode()==KeyEvent.VK_Q){
+                shopDirect = "NO";
+                title.setVisible(false);
+                firstLine.setVisible(false);
+                secondLine.setVisible(false);
+                thirdLine.setVisible(false);
                 shopLabel.setVisible(false);
                 System.out.println("取消");
             }
@@ -677,13 +839,20 @@ public class GameUI{
             else{
                 shopLabel.setVisible(true);
             }
-        }else if (floorNum==11){
+        }
+
+        else if (floorNum==11){
             if(e.getKeyCode()==KeyEvent.VK_A){
                 hero.coin = hero.coin-100;
                 hero.attack = hero.attack+20;
                 System.out.println("攻击");
             }
             else if(e.getKeyCode()==KeyEvent.VK_Q){
+                shopDirect = "NO";
+                title.setVisible(false);
+                firstLine.setVisible(false);
+                secondLine.setVisible(false);
+                thirdLine.setVisible(false);
                 shopLabel.setVisible(false);
                 System.out.println("取消");
             }
@@ -700,24 +869,73 @@ public class GameUI{
             else{
                 shopLabel.setVisible(true);
             }
-        }else {
-            System.out.println("此地无商店");
         }
 
+        else if (floorNum==12){
+            if(e.getKeyCode()==KeyEvent.VK_A){
+                hero.coin = hero.coin+30;
+                hero.bluekey = hero.bluekey-1;
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_Q){
+                shopLabel.setVisible(false);
+                System.out.println("取消");
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_S){
+                hero.coin = hero.coin+70;
+                hero.redkey = hero.redkey-1;
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_D){
+                hero.coin = hero.coin+7;
+                hero.yellowkey = hero.yellowkey-1;
+            }
+            else{
+                shopLabel.setVisible(true);
+            }
+        }
+
+        else if (floorNum==13){
+            if(e.getKeyCode()==KeyEvent.VK_A){
+                hero.experience = hero.experience-90;
+                hero.attack = hero.attack+5;
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_Q){
+                shopDirect = "NO";
+                title.setVisible(false);
+                firstLine.setVisible(false);
+                secondLine.setVisible(false);
+                thirdLine.setVisible(false);
+                shopLabel.setVisible(false);
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_S){
+                hero.experience = hero.experience-90;
+                hero.defence = hero.defence+5;
+            }
+            else if(e.getKeyCode()==KeyEvent.VK_D){
+                hero.experience = hero.experience-270;
+                hero.level = hero.level+1;
+            }
+            else{
+                shopLabel.setVisible(true);
+            }
+
+        }
+        else {
+            System.out.println("此地无商店");
+        }
     }
 
     private void heroDoMove(KeyEvent e) {
         if (e.getKeyCode()==KeyEvent.VK_UP){
-            heroGoUp();
+            heroGoUp(e);
         }
         else if (e.getKeyCode()==KeyEvent.VK_DOWN){
-            heroGoDown();
+            heroGoDown(e);
         }
         else if (e.getKeyCode()==KeyEvent.VK_LEFT){
-            heroGoLeft();
+            heroGoLeft(e);
         }
         else if (e.getKeyCode()==KeyEvent.VK_RIGHT){
-            heroGoRight();
+            heroGoRight(e);
         }
         else{
             System.out.println("is not ready!");
@@ -820,10 +1038,6 @@ public class GameUI{
             handbookLabel.add(damageLabel);
 
 
-
-
-
-
             num = num+1;
 
         }
@@ -847,7 +1061,7 @@ public class GameUI{
     }
 
 
-    public void heroGoRight() {
+    public void heroGoRight(KeyEvent e) {
         LeftORRight = -1;
         hero.y = hero.y-LeftORRight;
         if(hero.y<=10){
@@ -860,7 +1074,7 @@ public class GameUI{
 
     }
 
-    public void heroGoLeft() {
+    public void heroGoLeft(KeyEvent e) {
         LeftORRight = 1;
         hero.y = hero.y-LeftORRight;
         if(hero.y>=0){
@@ -922,7 +1136,7 @@ public class GameUI{
 
     }
 
-    public void heroGoDown() {
+    public void heroGoDown(KeyEvent e) {
         UpORDown=-1;
         hero.x = hero.x-UpORDown;
         if(hero.x<=10){
@@ -946,9 +1160,9 @@ public class GameUI{
             gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
 
         }
-        else if(hero.yellowKey>=1&&gameObjects[hero.z][hero.y][hero.x].type.equals("yellowdoor")){
+        else if(hero.yellowkey>=1&&gameObjects[hero.z][hero.y][hero.x].type.equals("yellowdoor")){
             System.out.println("踩到黄门");
-            hero.yellowKey = hero.yellowKey-1;//黄钥匙数量-1
+            hero.yellowkey = hero.yellowkey-1;//黄钥匙数量-1
             //黄门的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
@@ -960,9 +1174,9 @@ public class GameUI{
             gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
 
         }
-        else if(hero.yellowKey>=1&&gameObjects[hero.z][hero.y][hero.x].type.equals("bluedoor")){
+        else if(hero.bluekey>=1&&gameObjects[hero.z][hero.y][hero.x].type.equals("bluedoor")){
             System.out.println("踩到");
-            hero.blueKey = hero.blueKey-1;//黄钥匙数量-1
+            hero.bluekey = hero.bluekey-1;//黄钥匙数量-1
             //黄门的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
@@ -974,9 +1188,9 @@ public class GameUI{
             gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
 
         }
-        else if (hero.redKey>=1&&gameObjects[hero.z][hero.y][hero.x].type.equals("reddoor")){
+        else if (hero.redkey>=1&&gameObjects[hero.z][hero.y][hero.x].type.equals("reddoor")){
             System.out.println("踩到红门");
-            hero.redKey = hero.redKey-1;//红钥匙数量-1
+            hero.redkey = hero.redkey-1;//红钥匙数量-1
             //从bottom当中去除此红门
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
             //修改英雄标签所在的位置
@@ -1023,23 +1237,15 @@ public class GameUI{
             //
             System.out.println("下楼");
         }
-        else if (gameObjects[hero.z][hero.y][hero.x].type .equals("yellowkey")){
-            System.out.println("得到黄钥匙");
-            hero.yellowKey = hero.yellowKey+1;//
-            //红钥匙的标签直接设置为空
-            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
-//                    yellowDoors[hero.z][hero.y][hero.x]=null;
-            //修改英雄标签所在的位置
-            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
-            //英雄现在站立的地方变成英雄的坐标
-            gameObjects[hero.z][hero.y][hero.x].type="hero";
-            //英雄原本站立的地方变成空地
-            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
-        }
-        else if (gameObjects[hero.z][hero.y][hero.x].type.equals("redkey")){
-            System.out.println("得到红钥匙");
-            hero.redKey = hero.redKey+1;//
-            //红钥匙的标签直接设置为空
+        else if (gameObjects[hero.z][hero.y][hero.x].type.contains("key")&&!gameObjects[hero.z][hero.y][hero.x].type.contains("big")){
+            System.out.println("得到"+gameObjects[hero.z][hero.y][hero.x].type);
+            try {
+                Field f1 = hero.getClass().getDeclaredField(gameObjects[hero.z][hero.y][hero.x].type);
+                f1.set(hero, (Integer)f1.get(hero)+1);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            //钥匙的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
@@ -1048,24 +1254,13 @@ public class GameUI{
             //英雄原本站立的地方变成空地
             gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
         }
-        else if (gameObjects[hero.z][hero.y][hero.x].type.equals("bluekey")){
-            System.out.println("得到蓝钥匙");
-            hero.blueKey = hero.blueKey+1;//
-            //红钥匙的标签直接设置为空
-            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
-//                    yellowDoors[hero.z][hero.y][hero.x]=null;
-            //修改英雄标签所在的位置
-            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
-            //英雄现在站立的地方变成英雄的坐标
-            gameObjects[hero.z][hero.y][hero.x].type="hero";
-            //英雄原本站立的地方变成空地
-            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
-        }
+
+
         else if (gameObjects[hero.z][hero.y][hero.x].type.equals("bigkey")){
             System.out.println("得到大钥匙");
-            hero.blueKey = hero.blueKey+1;//
-            hero.redKey = hero.redKey+1;
-            hero.yellowKey = hero.yellowKey+1;
+            hero.bluekey = hero.bluekey+1;//
+            hero.redkey = hero.redkey+1;
+            hero.yellowkey= hero.yellowkey+1;
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             gameObjects[hero.z][hero.y][hero.x].type="hero";
@@ -1124,9 +1319,17 @@ public class GameUI{
             //英雄原本站立的地方变成空地
             gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
         }
-        else if (monsterNameSet.contains(gameObjects[hero.z][hero.y][hero.x].type)){
+        else if(Monster.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
             System.out.println("遇到"+gameObjects[hero.z][hero.y][hero.x].type);
             //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
+            //先判断特殊属性
+            if (Vampire.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
+                if (Whitewarrior.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
+                    hero.life = hero.life*3/4;
+                }else if(Soulwitch.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
+                    hero.life = hero.life*2/3;
+                }
+            }
             boolean fightingResult = fight((Monster) gameObjects[hero.z][hero.y][hero.x]);
             if (fightingResult){//打得过
                 System.out.println("打得过");
@@ -1144,149 +1347,157 @@ public class GameUI{
                 hero.x = hero.x+UpORDown;
             }
         }
-        else if (gameObjects[hero.z][hero.y][hero.x].type.contains("greedy")){
-            //遇到商店老板或者叫贪婪之神
-            System.out.println("遇到商店老板");
-            //显示交易的界面
-            if(gameObjects[hero.z][hero.y][hero.x].type.contains("first")){
-                gamePanel.setLayout(null);
-
-                shopLabel.setSize(150,200);
-                shopLabel.setLocation(430,120);
-                shopLabel.setVisible(true);
-                shopLabel.setOpaque(true);
-                shopLabel.setBackground(Color.GRAY);
-
-                JLabel title = new JLabel();
-                title.setLayout(null);
-                title.setSize(150,40);
-                title.setLocation(0,0);
-                title.setVisible(true);
-                title.setOpaque(true);
-                title.setBackground(Color.WHITE);
-                title.setText("献祭就能更强");
-
-                JLabel lifeImprove = new JLabel();
-                lifeImprove.setLayout(null);
-                lifeImprove.setSize(150,40);
-                lifeImprove.setLocation(0,40);
-                lifeImprove.setVisible(true);
-                lifeImprove.setOpaque(true);
-
-                lifeImprove.setBackground(Color.YELLOW);
-                lifeImprove.setText("生命+800");
-
-                JLabel attackImprove = new JLabel();
-                attackImprove.setLayout(null);
-                attackImprove.setSize(150,40);
-                attackImprove.setLocation(0,80);
-                attackImprove.setVisible(true);
-                attackImprove.setOpaque(true);
-
-                attackImprove.setBackground(Color.PINK);
-                attackImprove.setText("攻击+800");
-
-                JLabel defenceImprove = new JLabel();
-                defenceImprove.setLayout(null);
-                defenceImprove.setSize(150,40);
-                defenceImprove.setLocation(0,120);
-                defenceImprove.setVisible(true);
-                defenceImprove.setOpaque(true);
-                defenceImprove.setBackground(Color.ORANGE);
-                defenceImprove.setText("防御+800");
-
-                JLabel quit = new JLabel();
-                quit.setLayout(null);
-                quit.setSize(150,40);
-                quit.setLocation(0,160);
-                quit.setVisible(true);
-                quit.setOpaque(true);
-
-                quit.setBackground(Color.CYAN);
-                quit.setText("取消");
-
-                shopLabel.add(title);
-                shopLabel.add(lifeImprove);
-                shopLabel.add(attackImprove);
-                shopLabel.add(defenceImprove);
-                shopLabel.add(quit);
 
 
-                hero.x = hero.x+UpORDown;
-                hero.y = hero.y+LeftORRight;
+        else if(Shop.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
+            //可以交易的
+            if (UpORDown!=0){
+                if (UpORDown<0){
+                    shopDirect = "DOWN";
+                }else {
+                    shopDirect = "UP";
+                }
+            }else{
+                if (LeftORRight<0){
+                    shopDirect = "RIGHT";
+                }else if (LeftORRight==0){
+                    shopDirect = "NO";
+                }else {
+                    shopDirect = "LEFT";
+                }
 
             }
-            else if (gameObjects[hero.z][hero.y][hero.x].type.contains("second")){
-                gamePanel.setLayout(null);
-
-                shopLabel.setSize(150,200);
-                shopLabel.setLocation(430,120);
-                shopLabel.setVisible(true);
-                shopLabel.setOpaque(true);
-                shopLabel.setBackground(Color.GRAY);
-
-                JLabel title = new JLabel();
-                title.setLayout(null);
-                title.setSize(150,40);
-                title.setLocation(0,0);
-                title.setVisible(true);
-                title.setOpaque(true);
-                title.setBackground(Color.WHITE);
-                title.setText("献祭就能更强");
-
-                JLabel lifeImprove = new JLabel();
-                lifeImprove.setLayout(null);
-                lifeImprove.setSize(150,40);
-                lifeImprove.setLocation(0,40);
-                lifeImprove.setVisible(true);
-                lifeImprove.setOpaque(true);
-
-                lifeImprove.setBackground(Color.YELLOW);
-                lifeImprove.setText("生命+800");
-
-                JLabel attackImprove = new JLabel();
-                attackImprove.setLayout(null);
-                attackImprove.setSize(150,40);
-                attackImprove.setLocation(0,80);
-                attackImprove.setVisible(true);
-                attackImprove.setOpaque(true);
-
-                attackImprove.setBackground(Color.PINK);
-                attackImprove.setText("攻击+800");
-
-                JLabel defenceImprove = new JLabel();
-                defenceImprove.setLayout(null);
-                defenceImprove.setSize(150,40);
-                defenceImprove.setLocation(0,120);
-                defenceImprove.setVisible(true);
-                defenceImprove.setOpaque(true);
-                defenceImprove.setBackground(Color.ORANGE);
-                defenceImprove.setText("防御+800");
-
-                JLabel quit = new JLabel();
-                quit.setLayout(null);
-                quit.setSize(150,40);
-                quit.setLocation(0,160);
-                quit.setVisible(true);
-                quit.setOpaque(true);
-
-                quit.setBackground(Color.CYAN);
-                quit.setText("取消");
-
-                shopLabel.add(title);
-                shopLabel.add(lifeImprove);
-                shopLabel.add(attackImprove);
-                shopLabel.add(defenceImprove);
-                shopLabel.add(quit);
+            System.out.println("开始交易:"+gameObjects[hero.z][hero.y][hero.x].type);
 
 
-                hero.x = hero.x+UpORDown;
-                hero.y = hero.y+LeftORRight;
+            if (Greedy.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
+                if (Firstgreedy.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
+                    Firstgreedy firstgreedy = (Firstgreedy) gameObjects[hero.z][hero.y][hero.x];
+                    title.setText(firstgreedy.title);
+                    firstLine.setText(firstgreedy.firstLine);
+                    secondLine.setText(firstgreedy.secondLine);
+                    thirdLine.setText(firstgreedy.thirdLine);
+                }else if(Secondgreedy.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
+                    Secondgreedy secondgreedy = (Secondgreedy) gameObjects[hero.z][hero.y][hero.x];
+                    title.setText(secondgreedy.title);
+                    firstLine.setText(secondgreedy.firstLine);
+                    secondLine.setText(secondgreedy.secondLine);
+                    thirdLine.setText(secondgreedy.thirdLine);
+                }else{
+                    System.out.println("不存在该商店!");
+                }
             }
 
+            if (Oldman.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
+                Oldman oldman = (Oldman) gameObjects[hero.z][hero.y][hero.x];
+
+
+
+                if (floorNum==5){
+                    oldman.attack = 30;
+                    oldman.defence = 30;
+                    oldman.experience = 100;
+                    oldman.init();
+                }
+                if (floorNum==13){
+                    oldman.attack = 70;
+                    oldman.defence = 70;
+                    oldman.experience = 270;
+                    oldman.init();
+                }
+                title.setText(oldman.title);
+                firstLine.setText(oldman.firstLine);
+                secondLine.setText(oldman.secondLine);
+                thirdLine.setText(oldman.thirdLine);
+                if (floorNum==2){
+                    //todo
+                    //可能后续这里还需要加入和老人的对话，勇敢的孩子之类的过场话
+                    hero.attack = hero.attack+10;
+                    gameObjects[floorNum][hero.y][hero.x].type = "blank";
+                    bottom.remove(gameObjects[floorNum][hero.y][hero.x].gameObjectLabel);
+                    gameObjects[floorNum][hero.y][hero.x].gameObjectLabel.setVisible(false);
+                    hero.x = hero.x+UpORDown;
+                    hero.y = hero.y+LeftORRight;
+                    return;
+                }
+            }
+
+            if (Celler.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
+                Celler celler = (Celler) gameObjects[hero.z][hero.y][hero.x];
+
+                if (floorNum==5){
+                    celler.init();
+                }
+                title.setText(celler.title);
+                firstLine.setText(celler.firstLine);
+                secondLine.setText(celler.secondLine);
+                thirdLine.setText(celler.thirdLine);
+                if (floorNum==2){
+                    //todo
+                    //可能后续这里还需要加入和老人的对话，勇敢的孩子之类的过场话
+                    hero.defence = hero.defence+10;
+                    gameObjects[floorNum][hero.y][hero.x].type = "blank";
+                    bottom.remove(gameObjects[floorNum][hero.y][hero.x].gameObjectLabel);
+                    gameObjects[floorNum][hero.y][hero.x].gameObjectLabel.setVisible(false);
+                    hero.x = hero.x+UpORDown;
+                    hero.y = hero.y+LeftORRight;
+                    return;
+                }
+            }
+
+
+            gamePanel.setLayout(null);
+            shopLabel.setSize(150,200);
+            shopLabel.setLocation(430,120);
+            shopLabel.setVisible(true);
+            shopLabel.setOpaque(true);
+            shopLabel.setBackground(Color.GRAY);
+
+            title.setSize(150,40);
+            title.setLocation(0,0);
+            title.setVisible(true);
+            title.setOpaque(true);
+            title.setBackground(Color.WHITE);
+
+            firstLine.setSize(150,40);
+            firstLine.setLocation(0,40);
+            firstLine.setVisible(true);
+            firstLine.setOpaque(true);
+
+            firstLine.setBackground(Color.YELLOW);
+
+            secondLine.setSize(150,40);
+            secondLine.setLocation(0,80);
+            secondLine.setVisible(true);
+            secondLine.setOpaque(true);
+
+            secondLine.setBackground(Color.PINK);
+
+            thirdLine.setSize(150,40);
+            thirdLine.setLocation(0,120);
+            thirdLine.setVisible(true);
+            thirdLine.setOpaque(true);
+            thirdLine.setBackground(Color.ORANGE);
+
+            quit.setSize(150,40);
+            quit.setLocation(0,160);
+            quit.setVisible(true);
+            quit.setOpaque(true);
+
+            quit.setBackground(Color.CYAN);
+            quit.setText("取消(q)");
+
+            shopLabel.setLayout(null);
+
+            shopLabel.setVisible(true);
+
+            hero.x = hero.x+UpORDown;
+            hero.y = hero.y+LeftORRight;
 
 
         }
+
+
         else if(gameObjects[hero.z][hero.y][hero.x].type.contains("sword")||gameObjects[hero.z][hero.y][hero.x].type.contains("shield")){
             System.out.println("得到"+gameObjects[hero.z][hero.y][hero.x].type);
             hero.defence = hero.defence+((Weapon)gameObjects[hero.z][hero.y][hero.x]).defence;//
@@ -1327,14 +1538,127 @@ public class GameUI{
             gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
             hero.fly = true;
         }
+        else if (gameObjects[hero.z][hero.y][hero.x].type.equals("hook")){
+            hero.hook = true;
+
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+        }
+
+        else if (Flyfeather.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
+            Flyfeather flyfeather = (Flyfeather) gameObjects[hero.z][hero.y][hero.x];
+            hero.level = hero.level + flyfeather.level;
+
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+
+        }
+        else if (gameObjects[hero.z][hero.y][hero.x].type.equals("holywater")){
+            hero.holywater = true;
+
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+        }
+        else if (gameObjects[hero.z][hero.y][hero.x].type.equals("cross")){
+            hero.cross = true;
+
+            bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+
+            hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+
+            gameObjects[hero.z][hero.y][hero.x].type="hero";
+
+            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+        }
+
+        else if (gameObjects[hero.z][hero.y][hero.x].type.equals("celestial")){
+            System.out.println("仙子的对话");
+            gamePanel.setLayout(null);
+            dialogLabel.setVisible(true);
+            dialogLabel.setOpaque(true);
+            dialogLabel.setLocation(350,200);
+            dialogLabel.setBackground(Color.WHITE);
+            dialogLabel.setSize(300,50);
+            if (hero.cross==false){
+                dialogLabel.setText("勇者，去吧！去追寻你的梦想吧！");
+                hero.x = hero.x+UpORDown;
+                hero.y = hero.y+LeftORRight;
+            }else {
+                dialogLabel.setText("哇！十字架！现在就给你强化！");
+                hero.life = hero.life*4/3;
+                hero.attack = hero.attack*4/3;
+                hero.defence = hero.defence*4/3;
+                bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
+                gameObjects[hero.z][hero.y][hero.x].type="hero";
+                gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+
+            }
+
+
+
+        }
+
+        else if (gameObjects[hero.z][hero.y][hero.x].type.equals("thief")){
+            if(hero.hook==false){
+                if (gameObjects[2][1][6].type.equals("blank")){
+                    System.out.println("星光圣镰没带来吗？");
+                }else {
+                    System.out.println("你救了我！我这就把2楼打通！");
+                    gameObjects[2][1][6].type = "blank";
+                    bottom.remove(gameObjects[2][1][6].gameObjectLabel);
+                    gameObjects[2][1][6].gameObjectLabel.setVisible(false);
+                }
+                hero.x = hero.x+UpORDown;
+                hero.y = hero.y+LeftORRight;
+            }else {
+                //todo
+                //设置对话，"太好了，我这就给你把公主那一层打通
+                System.out.println("太好了，我这就去把公主那边打通");
+                //然后把公主那一层的地方都改成blank
+                gameObjects[18][5][8].type = "blank";
+                bottom.remove(gameObjects[18][5][8].gameObjectLabel);
+                gameObjects[18][5][8].gameObjectLabel.setVisible(false);
+                gameObjects[18][5][9].type = "blank";
+                bottom.remove(gameObjects[18][5][9].gameObjectLabel);
+                gameObjects[18][5][9].gameObjectLabel.setVisible(false);
+                //同时小偷消失
+                gameObjects[4][5][0].type = "blank";
+                bottom.remove(gameObjects[4][5][0].gameObjectLabel);
+                gameObjects[4][5][0].gameObjectLabel.setVisible(false);
+            }
+
+        }
+
+
+
         else{
             hero.x = hero.x+UpORDown;
             hero.y = hero.y+LeftORRight;
         }
 
+
+
+
+
     }
 
-    public void heroGoUp() {
+    public void heroGoUp(KeyEvent e) {
         UpORDown = 1;
         hero.x = hero.x-UpORDown;
         if(hero.x>=0){
@@ -1349,11 +1673,15 @@ public class GameUI{
 
     public void setHeroStatus(){
         for(int i=0;i<hero.getClass().getDeclaredFields().length-4;i++){
-            try{
-                attributeLabels[i].setText(""+hero.getClass().getDeclaredFields()[i].getInt(hero));
-            }catch (Exception e){
-                e.printStackTrace();
+            if (hero.getClass().getDeclaredFields()[i].getType().isAssignableFrom(int.class)){
+                try{
+                    attributeLabels[i].setText(""+hero.getClass().getDeclaredFields()[i].getInt(hero));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
+
+
         }
 
 

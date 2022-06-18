@@ -1,5 +1,5 @@
 package GameObject.Characters.SpecialChar;
 
-public class Secondgreedyright extends Firstgreedy{
+public class Secondgreedyright extends Secondgreedy{
 
 }
