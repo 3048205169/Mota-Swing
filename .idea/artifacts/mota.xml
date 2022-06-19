@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="mota">
+    <output-path>$PROJECT_DIR$/out/artifacts/mota</output-path>
+    <root id="archive" name="mota.jar">
+      <element id="module-output" name="Mota-Swing" />
+    </root>
+  </artifact>
+</component>

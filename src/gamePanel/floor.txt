@@ -2705,7 +2705,7 @@ blank
 downstair
 blank
 darkstar
-upstair
+blank
 blank
 blank
 darkstar
@@ -2826,7 +2826,7 @@ darkstar
 blank
 blank
 blank
-fence
+darkstar
 darkstar
 darkstar
 darkstar
@@ -2837,7 +2837,7 @@ soulwitch
 soulwitch
 blank
 blank
-blank
+darkstar
 downstair
 darkstar
 darkstar
@@ -2850,7 +2850,7 @@ darkstar
 blank
 blank
 blank
-fence
+darkstar
 darkstar
 darkstar
 darkstar

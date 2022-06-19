@@ -1,6 +1,6 @@
 package GameObject.Characters.Enemy;
 
-public class Juniorwitch extends Monster{
+public class Juniorwitch extends Monster implements Fixeddamage{
     public Juniorwitch(){
         life = 250;
         attack = 120;

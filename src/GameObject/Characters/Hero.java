@@ -19,10 +19,10 @@ public class Hero extends NPC{
     public boolean holywater;
 
     public Hero() {
-        this.level = 0;
-        this.life = 1000;
-        this.attack = 1000;
-        this.defence = 1000;
+        this.level = 1;
+        this.life = 3012;
+        this.attack = 2500;
+        this.defence = 2500;
         this.coin = 0;
         this.experience = 0;
         this.yellowkey = 100;

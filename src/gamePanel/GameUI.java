@@ -18,9 +18,7 @@ import com.sun.xml.internal.ws.util.StringUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -52,10 +50,11 @@ public class GameUI{
 
     JLabel dialogLabel = new JLabel();
 
+    JLabel gameOverLabel = new JLabel();
+
     JLabel bgLabel = new JLabel();
 //    int[][][] floor = new int[21][11][11];
     GameObject [][][] gameObjects = new GameObject[22][11][11];
-
     Hero hero = new Hero();
 
     Set<String>monsterNameSet = new HashSet<>();
@@ -73,6 +72,8 @@ public class GameUI{
 
 
     public void initMonsterNameSet(){
+        //todo
+        //这里打成jar包的情况下无法读取到
         Class[] classByPackage = ClassUtils.getClassByPackage("GameObject.Characters.Enemy");
         for (Class aClass : classByPackage) {
             String className = aClass.getName();
@@ -111,6 +112,8 @@ public class GameUI{
         setHeroStatus();//设置英雄的状态
         setFloorNum();//设置楼层功能表里面的楼层数
 
+
+
         dialogLabel.setVisible(false);
         gamePanel.add(dialogLabel);
 
@@ -121,6 +124,8 @@ public class GameUI{
         handbookLabel.setVisible(false);
         gamePanel.add(handbookLabel);
 
+        gameOverLabel.setVisible(false);
+        gamePanel.add(gameOverLabel);
 
         bgLabel.add(bottom);
         gamePanel.add(bgLabel);
@@ -201,9 +206,18 @@ public class GameUI{
         int i=0;
         int j=0;
         int k=0;
-        File floorTxt = new File("src/gamePanel/floor.txt");
+        //原始的读取文件的方式
+//        String path = "src/gamePanel/floor.txt";
+//        File floorTxt = new File(path);
+//        BufferedReader br = null;
+
+        BufferedReader br = new BufferedReader(
+                new InputStreamReader(this.getClass()
+                        .getClassLoader()
+                        .getResourceAsStream("gamePanel/floor.txt")));
+
         try{
-            BufferedReader br = new BufferedReader(new FileReader(floorTxt));
+//            br = new BufferedReader(new FileReader(floorTxt));
             String s = null;
             while((s=br.readLine())!=null){
                 //在这里进行读取
@@ -243,7 +257,7 @@ public class GameUI{
                         e.printStackTrace();
                     }
 
-                    gameObjects[i][j][k] = key;//todo
+                    gameObjects[i][j][k] = key;
                 }
                 else if(line.contains("bottle")){
                     Bottle bottle = new Bottle();
@@ -258,7 +272,7 @@ public class GameUI{
                         e.printStackTrace();
                     }
 
-                    gameObjects[i][j][k] = bottle;//todo
+                    gameObjects[i][j][k] = bottle;
                 }
                 else if(line.contains("diamond")){
                     Diamond diamond = new Diamond();
@@ -273,7 +287,7 @@ public class GameUI{
                         e.printStackTrace();
                     }
 
-                    gameObjects[i][j][k] = diamond;//todo
+                    gameObjects[i][j][k] = diamond;
                 }
                 else if(line.contains("greedy")){
                     if (line.contains("first")){
@@ -289,7 +303,7 @@ public class GameUI{
                             e.printStackTrace();
                         }
 
-                        gameObjects[i][j][k] = firstgreedy;//todo
+                        gameObjects[i][j][k] = firstgreedy;
                     }
                     else if (line.contains("second")){
                         Secondgreedy secondgreedy = new Secondgreedy();
@@ -304,7 +318,7 @@ public class GameUI{
                             e.printStackTrace();
                         }
 
-                        gameObjects[i][j][k] = secondgreedy;//todo
+                        gameObjects[i][j][k] = secondgreedy;
                     }
 
                 }
@@ -314,7 +328,7 @@ public class GameUI{
                     gameObject.x = k;
                     gameObject.y = j;
                     gameObject.z = i;
-                    gameObjects[i][j][k] = gameObject;//todo
+                    gameObjects[i][j][k] = gameObject;
 
                 }
                 else if(line.contains("sword")||line.contains("shield")){
@@ -330,7 +344,7 @@ public class GameUI{
                         e.printStackTrace();
                     }
 
-                    gameObjects[i][j][k] = weapon;//todo
+                    gameObjects[i][j][k] = weapon;
                 }
                 else if(line.contains("celler")){
                     Celler celler = new Celler();
@@ -360,7 +374,7 @@ public class GameUI{
                         e.printStackTrace();
                     }
 
-                    gameObjects[i][j][k] = oldman;//todo
+                    gameObjects[i][j][k] = oldman;
                 }
 
 
@@ -370,7 +384,7 @@ public class GameUI{
                     gameObject.x = k;
                     gameObject.y = j;
                     gameObject.z = i;
-                    gameObjects[i][j][k] = gameObject;//todo
+                    gameObjects[i][j][k] = gameObject;
                 }
 
 
@@ -419,7 +433,6 @@ public class GameUI{
 
     public void addComponent2Floor(){
         bottom.add(hero.gameObjectLabel);
-        //todo
         for(int i=0;i<22;i++){//楼层
             for(int j=0;j<11;j++){//j==y
                 for(int k=0;k<11;k++){//i==x
@@ -477,45 +490,44 @@ public class GameUI{
             for(int j=0;j<11;j++){
                 for(int k=0;k<11;k++){
                     if (null!=gameObjects[i][j][k]){
-                        JLabel gameObjectLabel = new JLabel();
-                        gameObjectLabel.setSize(34,34);
-                        gameObjectLabel.setLocation(34*j,94+34*k);
-
-                        ImageIcon gameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
-                        gameObjectIcon.setImage(gameObjectIcon.getImage().getScaledInstance(34,34,1));
-                        gameObjectLabel.setIcon(gameObjectIcon);
-
-
-
-                        ImageIcon simulateGameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
-                        JLabel simulateGameObjectLabel = new JLabel();
-                        simulateGameObjectLabel.setSize(24,24);
-                        simulateGameObjectLabel.setLocation(24*j,24*k);
-                        simulateGameObjectIcon.setImage(simulateGameObjectIcon.getImage().getScaledInstance(24,24,1));
-                        simulateGameObjectLabel.setIcon(simulateGameObjectIcon);
-                        gameObjects[i][j][k].simulateGameObjectLabel = simulateGameObjectLabel;
-
-
-                        if (gameObjects[i][j][k].type.equals("hero")){
-                            hero.z = i;
-                            hero.y = j;
-                            hero.x = k;
-                            hero.gameObjectLabel = gameObjectLabel;
-                        }
-
-                        gameObjects[i][j][k].gameObjectLabel=gameObjectLabel;
-
+                        addNewGameObject(i,j,k);
                     }
-                    else {
-                        continue;
-                    }
-
-
-
                 }
             }
         }
 
+    }
+
+    private void addNewGameObject(int i,int j,int k) {
+
+
+        JLabel gameObjectLabel = new JLabel();
+        gameObjectLabel.setSize(34,34);
+        gameObjectLabel.setLocation(34*j,94+34*k);
+
+        ImageIcon gameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
+        gameObjectIcon.setImage(gameObjectIcon.getImage().getScaledInstance(34,34,1));
+        gameObjectLabel.setIcon(gameObjectIcon);
+
+
+
+        ImageIcon simulateGameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
+        JLabel simulateGameObjectLabel = new JLabel();
+        simulateGameObjectLabel.setSize(24,24);
+        simulateGameObjectLabel.setLocation(24*j,24*k);
+        simulateGameObjectIcon.setImage(simulateGameObjectIcon.getImage().getScaledInstance(24,24,1));
+        simulateGameObjectLabel.setIcon(simulateGameObjectIcon);
+        gameObjects[i][j][k].simulateGameObjectLabel = simulateGameObjectLabel;
+
+
+        if (gameObjects[i][j][k].type.equals("hero")){
+            hero.z = i;
+            hero.y = j;
+            hero.x = k;
+            hero.gameObjectLabel = gameObjectLabel;
+        }
+
+        gameObjects[i][j][k].gameObjectLabel=gameObjectLabel;
     }
 
 
@@ -549,7 +561,7 @@ public class GameUI{
                 dialogLabel.setVisible(false);
             }
         }
-        if (shopLabel.isVisible()){
+        else if (shopLabel.isVisible()){
             doShopping(e);
         }
         else if(handbookLabel.isVisible()){
@@ -620,7 +632,6 @@ public class GameUI{
 
 
     private void doFlying(KeyEvent e) {
-        //todo
         //重新显示飞行的页面
         showFlyFloor();
         setFlyLabelTitle();
@@ -641,7 +652,6 @@ public class GameUI{
             flyLabel.setVisible(false);
             flyLabelTitle.setVisible(false);
         }else if(e.getKeyCode()==KeyEvent.VK_ENTER){
-            //todo
             if (floorNum<=simulateFloorNum){
                 gameObjects[hero.z][hero.y][hero.x].type="blank";
                 floorNum = simulateFloorNum;
@@ -1088,6 +1098,7 @@ public class GameUI{
 
 
     public int calculateLoss(Monster monster){
+
         //获取simulateHero和simulateMonster的模拟数据
         Hero simulateHero = new Hero() ;//模拟的英雄的数据
         simulateHero.attack =  hero.attack;
@@ -1098,6 +1109,25 @@ public class GameUI{
         simulateMonster.attack = monster.attack;
         simulateMonster.defence = monster.defence;
         simulateMonster.life = monster.life;
+
+        if (Vampire.class.isAssignableFrom(monster.getClass())){
+            if (Whitewarrior.class.isAssignableFrom(monster.getClass())){
+                simulateHero.life = simulateHero.life*3/4;
+            }else if(Soulwitch.class.isAssignableFrom(monster.getClass())){
+                simulateHero.life = simulateHero.life*2/3;
+            }
+        }
+        if (Fixeddamage.class.isAssignableFrom(monster.getClass())){
+            if (Juniorwitch.class.isAssignableFrom(monster.getClass())){
+                simulateHero.life = simulateHero.life-100;
+            }else if(Seniorwitch.class.isAssignableFrom(monster.getClass())){
+                simulateHero.life = simulateHero.life-300;
+            }
+        }
+
+
+
+
         if(simulateMonster.defence>=simulateHero.attack){
             return -1;
         }else if(simulateHero.defence>=simulateMonster.attack){
@@ -1106,10 +1136,14 @@ public class GameUI{
             return 0;
         }else {
             while (simulateMonster.life>0){//怪物的生命值不为0的时候
-                //怪物砍英雄一刀
-                simulateHero.life =simulateHero.life-(simulateMonster.attack-simulateHero.defence);
                 //英雄砍怪物一刀
                 simulateMonster.life = simulateMonster.life-(simulateHero.attack-simulateMonster.defence);
+                if (simulateMonster.life<=0){
+                    break;
+                }
+                //怪物砍英雄一刀
+                simulateHero.life =simulateHero.life-(simulateMonster.attack-simulateHero.defence);
+
             }
             return hero.life - simulateHero.life;
         }
@@ -1202,16 +1236,51 @@ public class GameUI{
 
         }
         else if (gameObjects[hero.z][hero.y][hero.x].type.equals("upstair")){
-            System.out.println("上楼");
-            //楼层数+1
-            floorNum = floorNum+1;
-            //原本站立的地方变成空地
-            gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";//hero.x-1
-            //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
-            SetHeroCoor(true);//此方法寻找上一层的downStairs的在floor上的坐标然后选取一个可以站立的位置赋值给hero
-            //将英雄的现在的位置在floor里面设置值
-            gameObjects[hero.z][hero.y][hero.x].type="hero";
-            //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
+            if (floorNum<20){
+                System.out.println("上楼");
+                //楼层数+1
+                floorNum = floorNum+1;
+                //原本站立的地方变成空地
+                gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";//hero.x-1
+                //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
+                SetHeroCoor(true);//此方法寻找上一层的downStairs的在floor上的坐标然后选取一个可以站立的位置赋值给hero
+                //将英雄的现在的位置在floor里面设置值
+                gameObjects[hero.z][hero.y][hero.x].type="hero";
+                //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
+                if (floorNum==17){
+                    //17层怪物都会变异升级
+                    monsterMutate();
+
+
+                }
+
+
+            }else {
+                //todo
+                //上21楼，螟蛉魔王也会变异升级
+                System.out.println("上第21层");
+                //楼层数+1
+                floorNum = floorNum+1;
+                monsterMutate();
+
+                //原本站立的地方变成空地
+                gameObjects[20][5+LeftORRight][6+UpORDown].type="blank";//hero.x-1
+                //修改英雄标签所在的位置，改为上一层的下楼所在的坐标
+                hero.z = 21;
+                hero.y = 5;
+                hero.x = 5;
+
+                //todo
+                // 确定一下这个坐标
+                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown-34
+                );
+
+
+                //将英雄的现在的位置在floor里面设置值
+                gameObjects[hero.z][hero.y][hero.x].type="hero";
+                //修改英雄标签所在的位置,将其设置为新楼层的downstairs所在的位置
+            }
+
         }
         else if(gameObjects[hero.z][hero.y][hero.x].type.equals("fence")){
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
@@ -1321,16 +1390,11 @@ public class GameUI{
         }
         else if(Monster.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
             System.out.println("遇到"+gameObjects[hero.z][hero.y][hero.x].type);
-            //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
-            //先判断特殊属性
-            if (Vampire.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
-                if (Whitewarrior.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
-                    hero.life = hero.life*3/4;
-                }else if(Soulwitch.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
-                    hero.life = hero.life*2/3;
-                }
-            }
             boolean fightingResult = fight((Monster) gameObjects[hero.z][hero.y][hero.x]);
+            ;
+            //进行模拟战斗，如果能够打得过，就进行真战斗，然后设置位置等等，如果打不过，就直接退回原位
+
+
             if (fightingResult){//打得过
                 System.out.println("打得过");
                 //史莱姆的标签直接从bottom当中剔除
@@ -1341,6 +1405,21 @@ public class GameUI{
                 gameObjects[hero.z][hero.y][hero.x].type="hero";
                 //原本站立的地方变成空地
                 gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+                if (Devilking.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())&&floorNum==21){
+                    gamePanel.setLayout(null);
+                    gameOverLabel.setSize(374,374);
+                    gameOverLabel.setLocation(310,35);
+                    gameOverLabel.setVisible(true);
+                    gameOverLabel.setOpaque(true);
+                    gameOverLabel.setBackground(Color.GRAY);
+                    gameOverLabel.setText("<html><body>魔王被打败了，仙子也恢复了魔法，公主也被救出来了.<br>" +
+                            "走出城外，一切都是那么的平常。国王迎接了他们，并把王位传给了勇者，<br>" +
+                            "从此以后，他们过上了幸福快乐的生活<br>" +
+                            "The end");
+                    Font font = new Font("宋体",Font.PLAIN,20);
+                    gameOverLabel.setFont(font);
+
+                }
             }else{//打不过
                 System.out.println("打不过");
                 hero.y = hero.y+LeftORRight;
@@ -1424,7 +1503,9 @@ public class GameUI{
 
             if (Celler.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
                 Celler celler = (Celler) gameObjects[hero.z][hero.y][hero.x];
-
+                if (floorNum==12){
+                    celler.init();
+                }
                 if (floorNum==5){
                     celler.init();
                 }
@@ -1443,6 +1524,9 @@ public class GameUI{
                     hero.y = hero.y+LeftORRight;
                     return;
                 }
+
+
+
             }
 
 
@@ -1603,10 +1687,19 @@ public class GameUI{
                 hero.life = hero.life*4/3;
                 hero.attack = hero.attack*4/3;
                 hero.defence = hero.defence*4/3;
-                bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
-                hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
-                gameObjects[hero.z][hero.y][hero.x].type="hero";
-                gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
+                hero.x = hero.x+UpORDown;
+                hero.y = hero.y+LeftORRight;
+                gameObjects[20][5][6].type = "upstair";
+                addNewGameObject(20,5,6);
+                bottom.setLayout(null);
+                bottom.add(gameObjects[20][5][6].gameObjectLabel);
+                flyLabel.setLayout(null);
+                flyLabel.add(gameObjects[20][5][6].simulateGameObjectLabel);
+                gameObjects[20][5][6].gameObjectLabel.setVisible(true);
+                gameObjects[20][5][6].simulateGameObjectLabel.setVisible(true);
+
+
+                hero.cross = false;
 
             }
 
@@ -1615,11 +1708,18 @@ public class GameUI{
         }
 
         else if (gameObjects[hero.z][hero.y][hero.x].type.equals("thief")){
+            System.out.println("小偷的对话");
+            gamePanel.setLayout(null);
+            dialogLabel.setVisible(true);
+            dialogLabel.setOpaque(true);
+            dialogLabel.setLocation(350,200);
+            dialogLabel.setBackground(Color.WHITE);
+            dialogLabel.setSize(300,50);
             if(hero.hook==false){
                 if (gameObjects[2][1][6].type.equals("blank")){
-                    System.out.println("星光圣镰没带来吗？");
+                    dialogLabel.setText("星光圣镰没带来吗？");
                 }else {
-                    System.out.println("你救了我！我这就把2楼打通！");
+                    dialogLabel.setText("你救了我！我这就把2楼打通！");
                     gameObjects[2][1][6].type = "blank";
                     bottom.remove(gameObjects[2][1][6].gameObjectLabel);
                     gameObjects[2][1][6].gameObjectLabel.setVisible(false);
@@ -1629,7 +1729,7 @@ public class GameUI{
             }else {
                 //todo
                 //设置对话，"太好了，我这就给你把公主那一层打通
-                System.out.println("太好了，我这就去把公主那边打通");
+                dialogLabel.setText("太好了，我这就去把公主那边打通");
                 //然后把公主那一层的地方都改成blank
                 gameObjects[18][5][8].type = "blank";
                 bottom.remove(gameObjects[18][5][8].gameObjectLabel);
@@ -1653,6 +1753,66 @@ public class GameUI{
         }
 
 
+
+
+
+    }
+
+    private void monsterMutate() {
+        //怪物变异的方式
+        if (floorNum==17){
+            for(int i=0;i<22;i++){//楼层
+                for(int j=0;j<11;j++){//j==y
+                    for(int k=0;k<11;k++){//i==x
+                        if(gameObjects[i][j][k]!=null){
+                            if (Reddevilking.class.isAssignableFrom(gameObjects[i][j][k].getClass())){
+                                Reddevilking reddevilking = (Reddevilking) gameObjects[i][j][k];
+                                reddevilking.life = 20000;
+                                reddevilking.attack = 1333;
+                                reddevilking.defence = 1333;
+                                reddevilking.coin = 100;
+                                reddevilking.experience = 100;
+
+                            }
+                            else if (Soulwitch.class.isAssignableFrom(gameObjects[i][j][k].getClass())){
+                                Soulwitch soulwitch = (Soulwitch) gameObjects[i][j][k];
+                                soulwitch.life = 2000;
+                                soulwitch.attack = 1106;
+                                soulwitch.defence = 730;
+                                soulwitch.coin = 106;
+                                soulwitch.experience = 93;
+                            }
+                            else if (Soulsoldier.class.isAssignableFrom(gameObjects[i][j][k].getClass())){
+                                Soulsoldier soulsoldier = (Soulsoldier) gameObjects[i][j][k];
+                                soulsoldier.life = 1800;
+                                soulsoldier.attack = 1306;
+                                soulsoldier.defence = 1200;
+                                soulsoldier.coin = 117;
+                                soulsoldier.experience = 100;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else if (floorNum==21){
+            for(int i=0;i<22;i++){//楼层
+                for(int j=0;j<11;j++){//j==y
+                    for(int k=0;k<11;k++){//i==x
+                        if(gameObjects[i][j][k]!=null){
+                            if (Devilking.class.isAssignableFrom(gameObjects[i][j][k].getClass())){
+                                Devilking devilking = (Devilking) gameObjects[i][j][k];
+                                devilking.life = 45000;
+                                devilking.attack = 2550;
+                                devilking.defence = 2250;
+                                devilking.coin = 312;
+                                devilking.experience = 275;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 
 
