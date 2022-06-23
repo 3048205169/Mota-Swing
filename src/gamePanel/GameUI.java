@@ -53,7 +53,6 @@ public class GameUI{
     JLabel gameOverLabel = new JLabel();
 
     JLabel bgLabel = new JLabel();
-//    int[][][] floor = new int[21][11][11];
     GameObject [][][] gameObjects = new GameObject[22][11][11];
     Hero hero = new Hero();
 
@@ -66,23 +65,61 @@ public class GameUI{
 
 
     public final int BLANK = 0;
-    public final int HERO = 1;
-
-
 
 
     public void initMonsterNameSet(){
         //todo
+        BufferedReader br = new BufferedReader(
+                new InputStreamReader(this.getClass()
+                        .getClassLoader()
+                        .getResourceAsStream("gamePanel/MonsterName.txt")));
+        String s = null;
+        try{
+            while((s=br.readLine())!=null){
+                //在这里进行读取
+                String line = s.toLowerCase();
+                monsterNameSet.add(line);
+
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+    public void writeMonsterNameFile(){
+        //todo
         //这里打成jar包的情况下无法读取到
         Class[] classByPackage = ClassUtils.getClassByPackage("GameObject.Characters.Enemy");
+        String classNameSum = "";
+        File file = new File("src/gamePanel/MonsterName.txt");
+
         for (Class aClass : classByPackage) {
             String className = aClass.getName();
             if (className.equals("Monster")){
                 continue;
             }
             className = className.replace("GameObject.Characters.Enemy.","");
+            classNameSum = classNameSum+className+"\r\n";
             monsterNameSet.add(className.toLowerCase());
         }
+
+        try {
+            byte[]bytes = classNameSum.getBytes();
+            OutputStream outputStream = new FileOutputStream(file);
+            outputStream.write(bytes);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     public GameUI(){
@@ -156,7 +193,7 @@ public class GameUI{
     public void setBottom(){
         //设置bottom
         bottom.setLocation(200,-55);
-        ImageIcon bottomIcon = new ImageIcon("src/imageResource/BlankBg.png");
+        ImageIcon bottomIcon = new ImageIcon(Image.class.getResource("imageResource/BlankBg.png"));
         bottomIcon.setImage(bottomIcon.getImage().getScaledInstance(374,370,1));
         bottom.setIcon(bottomIcon);
         bottom.setSize(500,560);
@@ -168,7 +205,7 @@ public class GameUI{
     public void setBgLabel() {
         //只设置bgLabel
         bgLabel.setLocation(0,0);
-        ImageIcon bgIcon = new ImageIcon("src/imageResource/GameBg.png");
+        ImageIcon bgIcon = new ImageIcon(Image.class.getResource("imageResource/GameBg.png"));
         bgIcon.setImage(bgIcon.getImage().getScaledInstance(605,438,1));
         bgLabel.setIcon(bgIcon);
         bgLabel.setSize(520,520);
@@ -222,11 +259,10 @@ public class GameUI{
             while((s=br.readLine())!=null){
                 //在这里进行读取
                 String line = s.toLowerCase();
-                if(s.equals("")){
-                    continue;
-                }else if(s.startsWith("#")){
+                if(s.equals("")||s.startsWith("#")){
                     continue;
                 }
+
 
                 if (monsterNameSet.contains(line)){
                     Monster monster = new Monster();
@@ -433,10 +469,11 @@ public class GameUI{
 
     public void addComponent2Floor(){
         bottom.add(hero.gameObjectLabel);
+        flyLabel.add(hero.simulateGameObjectLabel);
         for(int i=0;i<22;i++){//楼层
             for(int j=0;j<11;j++){//j==y
                 for(int k=0;k<11;k++){//i==x
-                    if(gameObjects[i][j][k]!=null){
+                    if(gameObjects[i][j][k]!=null&&!gameObjects[i][j][k].type.equals("blank")&&!gameObjects[i][j][k].type.equals("hero")){
                         bottom.add(gameObjects[i][j][k].gameObjectLabel);
                         flyLabel.add(gameObjects[i][j][k].simulateGameObjectLabel);
                     }
@@ -450,8 +487,8 @@ public class GameUI{
         for(int i=0;i<22;i++){
             for(int j=0;j<11;j++){//j==y
                 for(int k=0;k<11;k++){//i==x
-                    if(gameObjects[i][j][k]!=null){
-                        if(i==simulateFloorNum&&!gameObjects[i][j][k].type.equals("blank")&&!gameObjects[i][j][k].type.equals("hero")){
+                    if(gameObjects[i][j][k]!=null&&!gameObjects[i][j][k].type.equals("blank")&&!gameObjects[i][j][k].type.equals("hero")){
+                        if(i==simulateFloorNum){
                             gameObjects[i][j][k].simulateGameObjectLabel.setVisible(true);
                         }else{
                             gameObjects[i][j][k].simulateGameObjectLabel.setVisible(false);
@@ -461,15 +498,14 @@ public class GameUI{
             }
         }
 
-
-        hero.gameObjectLabel.setVisible(false);
+        hero.simulateGameObjectLabel.setVisible(false);
     }
 
     public void showFloor() {
         for(int i=0;i<22;i++){
             for(int j=0;j<11;j++){//j==y
                 for(int k=0;k<11;k++){//i==x
-                    if(gameObjects[i][j][k]!=null){
+                    if(gameObjects[i][j][k]!=null&&gameObjects[i][j][k].type.equals("blank")==false&&gameObjects[i][j][k].type.equals("hero")==false){
                         if(i==floorNum){
                             gameObjects[i][j][k].gameObjectLabel.setVisible(true);
                         }else{
@@ -489,7 +525,7 @@ public class GameUI{
         for(int i=0;i<22;i++){
             for(int j=0;j<11;j++){
                 for(int k=0;k<11;k++){
-                    if (null!=gameObjects[i][j][k]){
+                    if (null!=gameObjects[i][j][k]&&!gameObjects[i][j][k].type.equals("blank")){
                         addNewGameObject(i,j,k);
                     }
                 }
@@ -500,24 +536,26 @@ public class GameUI{
 
     private void addNewGameObject(int i,int j,int k) {
 
-
+        if (gameObjects[i][j][k].type.equals("blank")){
+            return;
+        }
         JLabel gameObjectLabel = new JLabel();
         gameObjectLabel.setSize(34,34);
         gameObjectLabel.setLocation(34*j,94+34*k);
 
-        ImageIcon gameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
+        System.out.println(gameObjects[i][j][k].type);
+        ImageIcon gameObjectIcon = new ImageIcon(Image.class.getResource("imageResource/" +gameObjects[i][j][k].type+".png"));
         gameObjectIcon.setImage(gameObjectIcon.getImage().getScaledInstance(34,34,1));
         gameObjectLabel.setIcon(gameObjectIcon);
 
 
 
-        ImageIcon simulateGameObjectIcon = new ImageIcon("src/imageResource/" +gameObjects[i][j][k].type+".png");
+        ImageIcon simulateGameObjectIcon = new ImageIcon(Image.class.getResource("imageResource/" +gameObjects[i][j][k].type+".png"));
         JLabel simulateGameObjectLabel = new JLabel();
         simulateGameObjectLabel.setSize(24,24);
         simulateGameObjectLabel.setLocation(24*j,24*k);
         simulateGameObjectIcon.setImage(simulateGameObjectIcon.getImage().getScaledInstance(24,24,1));
         simulateGameObjectLabel.setIcon(simulateGameObjectIcon);
-        gameObjects[i][j][k].simulateGameObjectLabel = simulateGameObjectLabel;
 
 
         if (gameObjects[i][j][k].type.equals("hero")){
@@ -525,9 +563,13 @@ public class GameUI{
             hero.y = j;
             hero.x = k;
             hero.gameObjectLabel = gameObjectLabel;
+            hero.simulateGameObjectLabel = simulateGameObjectLabel;
+        }else {
+            gameObjects[i][j][k].simulateGameObjectLabel = simulateGameObjectLabel;
+            gameObjects[i][j][k].gameObjectLabel=gameObjectLabel;
         }
 
-        gameObjects[i][j][k].gameObjectLabel=gameObjectLabel;
+
     }
 
 
@@ -597,7 +639,7 @@ public class GameUI{
                 gamePanel.setLayout(null);
                 flyLabelBottom.setVisible(true);
                 flyLabelBottom.setOpaque(true);
-                ImageIcon flyLabelIcon = new ImageIcon("src/imageResource/BlankBg.png");
+                ImageIcon flyLabelIcon = new ImageIcon(Image.class.getResource("imageResource/BlankBg.png"));
                 flyLabelIcon.setImage(flyLabelIcon.getImage().getScaledInstance(300,300,1));
                 flyLabel.setIcon(flyLabelIcon);
                 flyLabel.setLocation(330,120);
@@ -1499,6 +1541,18 @@ public class GameUI{
                     hero.y = hero.y+LeftORRight;
                     return;
                 }
+                if (floorNum==15){
+                    //又是卖剑的老人
+                    //todo
+                    //可能后续这里还需要加入和老人的对话，勇敢的孩子之类的过场话
+                    hero.attack = hero.attack+100;
+                    gameObjects[floorNum][hero.y][hero.x].type = "blank";
+                    bottom.remove(gameObjects[floorNum][hero.y][hero.x].gameObjectLabel);
+                    gameObjects[floorNum][hero.y][hero.x].gameObjectLabel.setVisible(false);
+                    hero.x = hero.x+UpORDown;
+                    hero.y = hero.y+LeftORRight;
+                    return;
+                }
             }
 
             if (Celler.class.isAssignableFrom(gameObjects[hero.z][hero.y][hero.x].getClass())){
@@ -1517,6 +1571,18 @@ public class GameUI{
                     //todo
                     //可能后续这里还需要加入和老人的对话，勇敢的孩子之类的过场话
                     hero.defence = hero.defence+10;
+                    gameObjects[floorNum][hero.y][hero.x].type = "blank";
+                    bottom.remove(gameObjects[floorNum][hero.y][hero.x].gameObjectLabel);
+                    gameObjects[floorNum][hero.y][hero.x].gameObjectLabel.setVisible(false);
+                    hero.x = hero.x+UpORDown;
+                    hero.y = hero.y+LeftORRight;
+                    return;
+                }
+
+                if (floorNum==15){
+                    //todo
+                    //可能后续这里还需要加入和老人的对话，勇敢的孩子之类的过场话
+                    hero.defence = hero.defence+100;
                     gameObjects[floorNum][hero.y][hero.x].type = "blank";
                     bottom.remove(gameObjects[floorNum][hero.y][hero.x].gameObjectLabel);
                     gameObjects[floorNum][hero.y][hero.x].gameObjectLabel.setVisible(false);
