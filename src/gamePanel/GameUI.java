@@ -1241,6 +1241,7 @@ public class GameUI{
             hero.yellowkey = hero.yellowkey-1;//黄钥匙数量-1
             //黄门的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
@@ -1256,6 +1257,7 @@ public class GameUI{
             //黄门的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             //英雄现在站立的地方变成英雄的坐标
@@ -1269,6 +1271,7 @@ public class GameUI{
             hero.redkey = hero.redkey-1;//红钥匙数量-1
             //从bottom当中去除此红门
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             //英雄现在站立的地方变成英雄的坐标
@@ -1326,7 +1329,7 @@ public class GameUI{
         }
         else if(gameObjects[hero.z][hero.y][hero.x].type.equals("fence")){
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
-//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             //英雄现在站立的地方变成英雄的坐标
@@ -1358,6 +1361,8 @@ public class GameUI{
             }
             //钥匙的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
+
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             //英雄现在站立的地方变成英雄的坐标
@@ -1373,6 +1378,8 @@ public class GameUI{
             hero.redkey = hero.redkey+1;
             hero.yellowkey= hero.yellowkey+1;
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
+
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             gameObjects[hero.z][hero.y][hero.x].type="hero";
             gameObjects[hero.z][hero.y+LeftORRight][hero.x+UpORDown].type="blank";
@@ -1383,6 +1390,7 @@ public class GameUI{
             //红钥匙的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             //英雄现在站立的地方变成英雄的坐标
@@ -1395,6 +1403,7 @@ public class GameUI{
             hero.life = hero.life+((Bluebottle)gameObjects[hero.z][hero.y][hero.x]).life;//
             //红钥匙的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
@@ -1409,6 +1418,7 @@ public class GameUI{
             hero.attack = hero.attack+((Reddiamond)gameObjects[hero.z][hero.y][hero.x]).attack;//
             //红钥匙的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
@@ -1422,6 +1432,7 @@ public class GameUI{
             hero.defence = hero.defence+((Bluediamond)gameObjects[hero.z][hero.y][hero.x]).defence;//
             //红钥匙的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
@@ -1441,6 +1452,7 @@ public class GameUI{
                 System.out.println("打得过");
                 //史莱姆的标签直接从bottom当中剔除
                 bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+                flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
                 //修改英雄标签所在的位置
                 hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
                 //英雄现在站立的地方变成英雄的坐标
@@ -1653,6 +1665,7 @@ public class GameUI{
             hero.defence = hero.defence+((Weapon)gameObjects[hero.z][hero.y][hero.x]).defence;//
             hero.attack = hero.attack+((Weapon)gameObjects[hero.z][hero.y][hero.x]).attack;//
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
 
             //红钥匙的标签直接设置为空
 //                    yellowDoors[hero.z][hero.y][hero.x]=null;
@@ -1667,7 +1680,7 @@ public class GameUI{
             System.out.println("得到"+"handbook");
             //红钥匙的标签直接设置为空
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
-//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             //英雄现在站立的地方变成英雄的坐标
@@ -1679,7 +1692,7 @@ public class GameUI{
         else if (gameObjects[hero.z][hero.y][hero.x].type.equals("fly")){
             System.out.println("捡到飞行器！");
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
-//                    yellowDoors[hero.z][hero.y][hero.x]=null;
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
             //修改英雄标签所在的位置
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
             //英雄现在站立的地方变成英雄的坐标
@@ -1692,6 +1705,7 @@ public class GameUI{
             hero.hook = true;
 
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
 
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
 
@@ -1705,6 +1719,7 @@ public class GameUI{
             hero.level = hero.level + flyfeather.level;
 
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
 
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
 
@@ -1717,6 +1732,7 @@ public class GameUI{
             hero.holywater = true;
 
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
 
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
 
@@ -1728,6 +1744,7 @@ public class GameUI{
             hero.cross = true;
 
             bottom.remove(gameObjects[hero.z][hero.y][hero.x].gameObjectLabel);
+            flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
 
             hero.gameObjectLabel.setLocation(hero.gameObjectLabel.getLocation().x-34*LeftORRight,hero.gameObjectLabel.getLocation().y-34*UpORDown);
 
@@ -1788,6 +1805,7 @@ public class GameUI{
                     dialogLabel.setText("你救了我！我这就把2楼打通！");
                     gameObjects[2][1][6].type = "blank";
                     bottom.remove(gameObjects[2][1][6].gameObjectLabel);
+                    flyLabel.remove(gameObjects[hero.z][hero.y][hero.x].simulateGameObjectLabel);
                     gameObjects[2][1][6].gameObjectLabel.setVisible(false);
                 }
                 hero.x = hero.x+UpORDown;
@@ -1799,6 +1817,7 @@ public class GameUI{
                 //然后把公主那一层的地方都改成blank
                 gameObjects[18][5][8].type = "blank";
                 bottom.remove(gameObjects[18][5][8].gameObjectLabel);
+                flyLabel.remove(gameObjects[18][5][8].simulateGameObjectLabel);
                 gameObjects[18][5][8].gameObjectLabel.setVisible(false);
                 gameObjects[18][5][9].type = "blank";
                 bottom.remove(gameObjects[18][5][9].gameObjectLabel);
@@ -1806,7 +1825,12 @@ public class GameUI{
                 //同时小偷消失
                 gameObjects[4][5][0].type = "blank";
                 bottom.remove(gameObjects[4][5][0].gameObjectLabel);
+                flyLabel.remove(gameObjects[4][5][0].simulateGameObjectLabel);
                 gameObjects[4][5][0].gameObjectLabel.setVisible(false);
+
+                hero.x = hero.x+UpORDown;
+                hero.y = hero.y+LeftORRight;
+
             }
 
         }
