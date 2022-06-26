@@ -816,8 +816,10 @@ public class GameUI{
         if (floorNum==5){
             if (Oldman.class.isAssignableFrom(gameObjects[floorNum][shopY][shopX].getClass())){
                 if(e.getKeyCode()==KeyEvent.VK_A){
-                    hero.experience = hero.experience-30;
-                    hero.attack = hero.attack+5;
+                    if (hero.experience-30>=0){
+                        hero.experience = hero.experience-30;
+                        hero.attack = hero.attack+5;
+                    }
                 }
                 else if(e.getKeyCode()==KeyEvent.VK_Q){
                     shopDirect = "NO";
@@ -828,12 +830,18 @@ public class GameUI{
                     shopLabel.setVisible(false);
                 }
                 else if(e.getKeyCode()==KeyEvent.VK_S){
-                    hero.experience = hero.experience-30;
-                    hero.defence = hero.defence+5;
+                    if (hero.experience-30>=0){
+                        hero.experience = hero.experience-30;
+                        hero.defence = hero.defence+5;
+                    }
+
                 }
                 else if(e.getKeyCode()==KeyEvent.VK_D){
-                    hero.experience = hero.experience-100;
-                    hero.level = hero.level+1;
+                    if (hero.experience-100>=0){
+                        hero.experience = hero.experience-100;
+                        hero.level = hero.level+1;
+                    }
+
                 }
                 else{
                     shopLabel.setVisible(true);
@@ -841,20 +849,29 @@ public class GameUI{
             }
             else if(Celler.class.isAssignableFrom(gameObjects[floorNum][shopY][shopX].getClass())){
                 if(e.getKeyCode()==KeyEvent.VK_A){
-                    hero.coin = hero.coin-50;
-                    hero.bluekey = hero.bluekey+1;
+                    if(hero.coin>=50){
+                        hero.coin = hero.coin-50;
+                        hero.bluekey = hero.bluekey+1;
+                    }
+
                 }
                 else if(e.getKeyCode()==KeyEvent.VK_Q){
                     shopLabel.setVisible(false);
                     System.out.println("取消");
                 }
                 else if(e.getKeyCode()==KeyEvent.VK_S){
-                    hero.coin = hero.coin-100;
-                    hero.redkey = hero.redkey+1;
+                    if(hero.coin>=100){
+                        hero.coin = hero.coin-100;
+                        hero.redkey = hero.redkey+1;
+                    }
+
                 }
                 else if(e.getKeyCode()==KeyEvent.VK_D){
-                    hero.coin = hero.coin-10;
-                    hero.yellowkey = hero.yellowkey+1;
+                    if(hero.coin-10>=0){
+                        hero.coin = hero.coin-10;
+                        hero.yellowkey = hero.yellowkey+1;
+                    }
+
                 }
                 else{
                     shopLabel.setVisible(true);
@@ -865,9 +882,12 @@ public class GameUI{
 
         else if (floorNum==3){
             if(e.getKeyCode()==KeyEvent.VK_A){
-                hero.coin = hero.coin-25;
-                hero.attack = hero.attack+4;
-                System.out.println("攻击");
+                if (hero.coin>=25){
+                    hero.coin = hero.coin-25;
+                    hero.attack = hero.attack+4;
+                    System.out.println("攻击");
+                }
+
             }
             else if(e.getKeyCode()==KeyEvent.VK_Q){
                 shopDirect = "NO";
@@ -879,14 +899,20 @@ public class GameUI{
                 System.out.println("取消");
             }
             else if(e.getKeyCode()==KeyEvent.VK_S){
-                hero.coin = hero.coin-25;
-                hero.defence = hero.defence+4;
-                System.out.println("防御");
+                if (hero.coin>=25){
+                    hero.coin = hero.coin-25;
+                    hero.defence = hero.defence+4;
+                    System.out.println("防御");
+                }
+
             }
             else if(e.getKeyCode()==KeyEvent.VK_D){
-                hero.coin = hero.coin-25;
-                hero.life = hero.life+800;
-                System.out.println("生命");
+                if(hero.coin>=25){
+                    hero.coin = hero.coin-25;
+                    hero.life = hero.life+800;
+                    System.out.println("生命");
+                }
+
             }
             else{
                 shopLabel.setVisible(true);
@@ -895,9 +921,12 @@ public class GameUI{
 
         else if (floorNum==11){
             if(e.getKeyCode()==KeyEvent.VK_A){
-                hero.coin = hero.coin-100;
-                hero.attack = hero.attack+20;
-                System.out.println("攻击");
+                if (hero.coin>=100){
+                    hero.coin = hero.coin-100;
+                    hero.attack = hero.attack+20;
+                    System.out.println("攻击");
+                }
+
             }
             else if(e.getKeyCode()==KeyEvent.VK_Q){
                 shopDirect = "NO";
@@ -909,14 +938,20 @@ public class GameUI{
                 System.out.println("取消");
             }
             else if(e.getKeyCode()==KeyEvent.VK_S){
-                hero.coin = hero.coin-100;
-                hero.defence = hero.defence+20;
-                System.out.println("防御");
+                if (hero.coin>=100){
+                    hero.coin = hero.coin-100;
+                    hero.defence = hero.defence+20;
+                    System.out.println("防御");
+                }
+
             }
             else if(e.getKeyCode()==KeyEvent.VK_D){
-                hero.coin = hero.coin-100;
-                hero.life = hero.life+4000;
-                System.out.println("生命");
+                if(hero.coin>=100){
+                    hero.coin = hero.coin-100;
+                    hero.life = hero.life+4000;
+                    System.out.println("生命");
+                }
+
             }
             else{
                 shopLabel.setVisible(true);
@@ -925,20 +960,28 @@ public class GameUI{
 
         else if (floorNum==12){
             if(e.getKeyCode()==KeyEvent.VK_A){
-                hero.coin = hero.coin+30;
-                hero.bluekey = hero.bluekey-1;
+                if (hero.bluekey>=1){
+                    hero.coin = hero.coin+30;
+                    hero.bluekey = hero.bluekey-1;
+                }
+
             }
             else if(e.getKeyCode()==KeyEvent.VK_Q){
                 shopLabel.setVisible(false);
                 System.out.println("取消");
             }
             else if(e.getKeyCode()==KeyEvent.VK_S){
-                hero.coin = hero.coin+70;
-                hero.redkey = hero.redkey-1;
+                if(hero.redkey>=1){
+                    hero.coin = hero.coin+70;
+                    hero.redkey = hero.redkey-1;
+                }
             }
             else if(e.getKeyCode()==KeyEvent.VK_D){
-                hero.coin = hero.coin+7;
-                hero.yellowkey = hero.yellowkey-1;
+                if (hero.yellowkey>=1){
+                    hero.coin = hero.coin+7;
+                    hero.yellowkey = hero.yellowkey-1;
+                }
+
             }
             else{
                 shopLabel.setVisible(true);
@@ -947,8 +990,11 @@ public class GameUI{
 
         else if (floorNum==13){
             if(e.getKeyCode()==KeyEvent.VK_A){
-                hero.experience = hero.experience-90;
-                hero.attack = hero.attack+5;
+                if(hero.experience>=90){
+                    hero.experience = hero.experience-90;
+                    hero.attack = hero.attack+5;
+                }
+
             }
             else if(e.getKeyCode()==KeyEvent.VK_Q){
                 shopDirect = "NO";
@@ -959,12 +1005,18 @@ public class GameUI{
                 shopLabel.setVisible(false);
             }
             else if(e.getKeyCode()==KeyEvent.VK_S){
-                hero.experience = hero.experience-90;
-                hero.defence = hero.defence+5;
+                if(hero.experience>=90){
+                    hero.experience = hero.experience-90;
+                    hero.defence = hero.defence+5;
+                }
+
             }
             else if(e.getKeyCode()==KeyEvent.VK_D){
-                hero.experience = hero.experience-270;
-                hero.level = hero.level+1;
+                if(hero.experience>=270){
+                    hero.experience = hero.experience-270;
+                    hero.level = hero.level+1;
+                }
+
             }
             else{
                 shopLabel.setVisible(true);
