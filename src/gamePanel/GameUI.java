@@ -1009,7 +1009,9 @@ public class GameUI{
         for(int j=0;j<11;j++){
             for(int k=0;k<11;k++){
                 if (Monster.class.isAssignableFrom(gameObjects[floorNum][j][k].getClass())){
-                    monsterMap.put(gameObjects[floorNum][j][k].getClass(), (Monster) gameObjects[floorNum][j][k]);
+                    if (!gameObjects[floorNum][j][k].type.equals("blank")){
+                        monsterMap.put(gameObjects[floorNum][j][k].getClass(), (Monster) gameObjects[floorNum][j][k]);
+                    }
                 }
 
             }
@@ -1548,6 +1550,7 @@ public class GameUI{
                     hero.attack = hero.attack+10;
                     gameObjects[floorNum][hero.y][hero.x].type = "blank";
                     bottom.remove(gameObjects[floorNum][hero.y][hero.x].gameObjectLabel);
+                    flyLabel.remove(gameObjects[floorNum][hero.y][hero.x].simulateGameObjectLabel);
                     gameObjects[floorNum][hero.y][hero.x].gameObjectLabel.setVisible(false);
                     hero.x = hero.x+UpORDown;
                     hero.y = hero.y+LeftORRight;
@@ -1560,6 +1563,7 @@ public class GameUI{
                     hero.attack = hero.attack+100;
                     gameObjects[floorNum][hero.y][hero.x].type = "blank";
                     bottom.remove(gameObjects[floorNum][hero.y][hero.x].gameObjectLabel);
+                    flyLabel.remove(gameObjects[floorNum][hero.y][hero.x].simulateGameObjectLabel);
                     gameObjects[floorNum][hero.y][hero.x].gameObjectLabel.setVisible(false);
                     hero.x = hero.x+UpORDown;
                     hero.y = hero.y+LeftORRight;
@@ -1585,6 +1589,7 @@ public class GameUI{
                     hero.defence = hero.defence+10;
                     gameObjects[floorNum][hero.y][hero.x].type = "blank";
                     bottom.remove(gameObjects[floorNum][hero.y][hero.x].gameObjectLabel);
+                    flyLabel.remove(gameObjects[floorNum][hero.y][hero.x].simulateGameObjectLabel);
                     gameObjects[floorNum][hero.y][hero.x].gameObjectLabel.setVisible(false);
                     hero.x = hero.x+UpORDown;
                     hero.y = hero.y+LeftORRight;
@@ -1597,6 +1602,8 @@ public class GameUI{
                     hero.defence = hero.defence+100;
                     gameObjects[floorNum][hero.y][hero.x].type = "blank";
                     bottom.remove(gameObjects[floorNum][hero.y][hero.x].gameObjectLabel);
+                    flyLabel.remove(gameObjects[floorNum][hero.y][hero.x].simulateGameObjectLabel);
+
                     gameObjects[floorNum][hero.y][hero.x].gameObjectLabel.setVisible(false);
                     hero.x = hero.x+UpORDown;
                     hero.y = hero.y+LeftORRight;
@@ -1821,6 +1828,7 @@ public class GameUI{
                 gameObjects[18][5][8].gameObjectLabel.setVisible(false);
                 gameObjects[18][5][9].type = "blank";
                 bottom.remove(gameObjects[18][5][9].gameObjectLabel);
+                flyLabel.remove(gameObjects[18][5][9].simulateGameObjectLabel);
                 gameObjects[18][5][9].gameObjectLabel.setVisible(false);
                 //同时小偷消失
                 gameObjects[4][5][0].type = "blank";
